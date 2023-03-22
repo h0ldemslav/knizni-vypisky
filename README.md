@@ -13,6 +13,8 @@
 * [Authors](#authors)
 * [Technology stack](#technology-stack)
 * [Features](#features)
+* [Setup](#setup)
+* [Usage](#usage)
 
 ## Authors
 
@@ -44,3 +46,32 @@ UID: xpacako1<br>
 ## Features
 
 ![Use case diagram](docs/usecase-diagram.svg)
+
+## Setup
+
+### Ordinary
+
+```bash
+git clone https://username@bitbucket.org/mendelu/waf_ss2022_xastapen.git
+cd waf_ss2022_xastapen
+
+yarn install
+```
+
+### Docker
+
+```bash
+git clone https://username@bitbucket.org/mendelu/waf_ss2022_xastapen.git
+cd waf_ss2022_xastapen
+
+docker image build -t knizni-vypisky .
+docker run --name knizni-vypisky -p 8080:8080 -d knizni-vypisky
+```
+
+
+## Usage
+
+- `yarn run dev` - starts development Vite server
+- `yarn run build` - builds the project and outputs to **./dist** directory
+- `yarn run preview` - starts a local web server that serves built code from **./dist** directory (production-like
+  preview)
