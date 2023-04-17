@@ -5,7 +5,7 @@ import 'vuetify/dist/vuetify.min.css' // import Vuetify styles
 const primaryTheme: ThemeDefinition = {
     dark: false,
     colors: {
-        background: '#696969',
+        background: '#F2F5F7',
         surface: '#FFFFFF',
         primary: '#E4573D',
         secondary: '#F4F3EC',

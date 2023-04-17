@@ -1,0 +1,11 @@
+/* GLOBAL STYLING */
+
+a, a:visited {
+    color: #333333;
+    text-decoration: none;
+}
+
+a:hover {
+    transition: 0.3s;
+    color: #E4573D;
+}
