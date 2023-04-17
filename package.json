@@ -1,7 +1,8 @@
 {
   "name": "knizni-vypisky",
-  "version": "0.0.0",
   "private": true,
+  "version": "0.0.0",
+  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc && vite build",
@@ -26,6 +27,7 @@
     "vue-cli-plugin-vuetify": "~2.5.8",
     "vue-tsc": "^1.2.0"
   },
+  "license": "MIT",
   "contributors": [
     {
       "name": "Daniil Astapenko",
@@ -44,7 +46,5 @@
       "name": "Lucie Pacáková",
       "email": "xpacako1@mendelu.cz"
     }
-  ],
-  "license": "MIT",
-  "type": "module"
+  ]
 }
