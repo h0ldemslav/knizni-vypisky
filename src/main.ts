@@ -9,6 +9,7 @@ import { createPinia } from 'pinia'
 
 import { initializeApp } from '@firebase/app'
 import { getAuth } from '@firebase/auth'
+import { getFirestore, collection } from '@firebase/firestore'
 
 const firebaseConfig = {
     apiKey: "AIzaSyCIpG_b3b7oKfZr7P5BfWuifqkSgIJ50oE",
@@ -21,6 +22,8 @@ const firebaseConfig = {
 
 initializeApp(firebaseConfig)
 export const auth = getAuth()
+export const db = getFirestore()
+export const collectionRef = collection(db, "book_collections") // reference to the database 'table'
 
 const app = createApp(App)
 app.use(createPinia())
