@@ -23,17 +23,19 @@
             </v-btn>
         </router-link>
 
-        <!-- TODO handle logged-in vs logged-out user -->
-        <v-btn prepend-icon="mdi-account-circle" variant="plain">
-            Přihlásit se
-        </v-btn>
+        <router-link :to="{ name: 'auth' }">
+            <v-btn @click="logoutIfAuthenticated" prepend-icon="mdi-account-circle" variant="plain">
+                {{ auth.isUserLoggedIn() ? "Odhlásit se" : "Přihlásit se" }}
+            </v-btn>
+        </router-link>
 
         <v-spacer/>
     </v-app-bar>
 </template>
 
 <script lang="ts" setup>
-import {useRouter} from 'vue-router';
+import { useRouter } from 'vue-router'
+import { authStore } from '../stores/auth'
 
 interface Link {
     title: string,
@@ -42,6 +44,7 @@ interface Link {
 }
 
 const router = useRouter()
+const auth = authStore()
 
 const links: Array<Link> = [
     {title: "Knihy", linkName: "books", symbol: "mdi-book-open-page-variant"},
@@ -52,6 +55,8 @@ const links: Array<Link> = [
 const isCurrentLink = (link: Link) => {
     return router.currentRoute.value.name === link.linkName
 }
+
+function logoutIfAuthenticated() { if (auth.isUserLoggedIn()) auth.logoutUser() }
 </script>
 
 <style>
