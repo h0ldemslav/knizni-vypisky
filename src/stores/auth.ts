@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, reactive } from 'vue'
+import { computed } from '@vue/reactivity'
 import router from '../router/'
 import { auth } from '../main'
 import { 
@@ -13,14 +14,14 @@ interface User {
     id: string | undefined
 }
 
-export const authStore = defineStore("auth", () => {
+export const useAuthStore = defineStore("auth", () => {
     let user: User = reactive({
         id: undefined
     })
 
     let errorMessage = ref("")
 
-    const isUserLoggedIn = (() => user.id !== undefined ? true : false)
+    const isUserLoggedIn = computed(() => user.id !== undefined ? true : false)
 
     const registerUser = (email: string, password: string) => {
         createUserWithEmailAndPassword(auth, email, password)

@@ -25,7 +25,7 @@
 
         <router-link :to="{ name: 'auth' }">
             <v-btn @click="logoutIfAuthenticated" prepend-icon="mdi-account-circle" variant="plain">
-                {{ auth.isUserLoggedIn() ? "Odhlásit se" : "Přihlásit se" }}
+                {{ authStore.isUserLoggedIn ? "Odhlásit se" : "Přihlásit se" }}
             </v-btn>
         </router-link>
 
@@ -35,7 +35,7 @@
 
 <script lang="ts" setup>
 import { useRouter } from 'vue-router'
-import { authStore } from '../stores/auth'
+import { useAuthStore } from '@/stores/auth'
 
 interface Link {
     title: string,
@@ -44,7 +44,7 @@ interface Link {
 }
 
 const router = useRouter()
-const auth = authStore()
+const authStore = useAuthStore()
 
 const links: Array<Link> = [
     {title: "Knihy", linkName: "books", symbol: "mdi-book-open-page-variant"},
@@ -56,7 +56,7 @@ const isCurrentLink = (link: Link) => {
     return router.currentRoute.value.name === link.linkName
 }
 
-function logoutIfAuthenticated() { if (auth.isUserLoggedIn()) auth.logoutUser() }
+function logoutIfAuthenticated() { if (authStore.isUserLoggedIn) authStore.logoutUser() }
 </script>
 
 <style>

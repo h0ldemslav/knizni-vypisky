@@ -21,15 +21,15 @@
             <span class="supportive" @click="toggleButtonLabel">{{ authType.supportiveText }}</span>
         </div>
 
-        <div class="error-message" v-if="auth.errorMessage">{{ auth.errorMessage }}</div>
+        <div class="error-message" v-if="authStore.errorMessage">{{ authStore.errorMessage }}</div>
     </form>
 </template>
 
 <script lang="ts" setup>
-    import { authStore } from '../stores/auth'
+    import { useAuthStore } from '@/stores/auth'
     import { reactive } from 'vue'
 
-    const auth = authStore()
+    const authStore = useAuthStore()
     const authType = reactive({
         buttonLabel: "Přihlásit se",
         supportiveText: "Nemáte účet? Zaregistrujte se"
@@ -43,7 +43,7 @@
 
     const onSubmit = () => {
         if (authType.buttonLabel === "Přihlásit se") {
-            auth.loginUser(formState.email, formState.password)
+            authStore.loginUser(formState.email, formState.password)
         } else if (authType.buttonLabel === "Zaregistrovat se") {
             register()
         }
@@ -51,9 +51,9 @@
 
     const register = () => {
         if (formState.password === formState.repeatPassword) {
-            auth.registerUser(formState.email, formState.password)
+            authStore.registerUser(formState.email, formState.password)
         } else {
-            auth.errorMessage = "Hesla musí být stejná"
+            authStore.errorMessage = "Hesla musí být stejná"
         }
     }
 
@@ -65,7 +65,7 @@
             authType.buttonLabel = "Přihlásit se"
             authType.supportiveText = "Nemáte účet? Zaregistrujte se"
             
-            if (auth.errorMessage !== "") auth.errorMessage = ""
+            if (authStore.errorMessage !== "") authStore.errorMessage = ""
         }
     }
 </script>
