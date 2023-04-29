@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
-import { authStore } from '@/stores/auth'
+import { useAuthStore } from '@/stores/auth'
 
 const routes: RouteRecordRaw[] = [
     {
@@ -17,7 +17,7 @@ const routes: RouteRecordRaw[] = [
         name: "collections",
         component: () => import("@/router/pages/CollectionsPage.vue"),
         meta: {
-            authRequired: true
+            requiresAuth: true
         }
     },
     {
@@ -25,7 +25,7 @@ const routes: RouteRecordRaw[] = [
         name: "tests",
         component: () => import("@/router/pages/TestsPage.vue"),
         meta: {
-            authRequired: true
+            requiresAuth: true
         }
     },
     {
@@ -41,11 +41,12 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-    const isAuthRequired = to.matched.some((record) => record.meta.authRequired)
-    const auth = authStore()
+    const isAuthRequired = to.matched.some((record) => record.meta.requiresAuth)
+    const authStore = useAuthStore()
 
-    if (isAuthRequired && !auth.isUserLoggedIn()) {
-      next({ name: "auth" })
+    if (isAuthRequired && !authStore.isUserLoggedIn) {
+        next({ name: "auth" })
+        localStorage.setItem("pagePath", to.fullPath)
     } else {
         next()
     }

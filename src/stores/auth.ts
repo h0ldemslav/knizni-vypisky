@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia'
 import { ref, reactive } from 'vue'
 import { computed } from '@vue/reactivity'
-import router from '../router/'
-import { auth } from '../main'
+import router from '@/router/'
+import { auth } from '@/main'
 import { 
     createUserWithEmailAndPassword, 
     signInWithEmailAndPassword, 
@@ -27,7 +27,6 @@ export const useAuthStore = defineStore("auth", () => {
         createUserWithEmailAndPassword(auth, email, password)
             .then(() => {
                 errorMessage.value = ""
-                console.log("Successfully registered!")
             }).catch((error) => {
                 if (error.code === "auth/email-already-in-use") {
                     errorMessage.value = "Zadaný email již existuje"
@@ -39,8 +38,7 @@ export const useAuthStore = defineStore("auth", () => {
         signInWithEmailAndPassword(auth, email, password)
             .then(() => {
                 errorMessage.value = ""
-                router.push("/kolekce")
-                console.log("Successfully logged in!")
+                router.push(localStorage.getItem("pagePath") ?? "/kolekce")
             })
             .catch((error) => {
                 if (error.code === "auth/wrong-password" || error.code === "auth/user-not-found") {
@@ -55,7 +53,7 @@ export const useAuthStore = defineStore("auth", () => {
         signOut(auth)
             .then(() => {
                 router.push("/")
-                console.log("Successfully logged out!")
+                localStorage.removeItem("pagePath")
             })   
     }
     
