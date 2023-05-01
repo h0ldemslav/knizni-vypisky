@@ -24,6 +24,7 @@ initializeApp(firebaseConfig)
 export const auth = getAuth()
 export const db = getFirestore()
 export const bookCollectionsRef = collection(db, "book_collections") // reference to the database 'table'
+export const bookNotesRef = collection(db, "book_notes")
 
 const app = createApp(App)
 app.use(createPinia())
