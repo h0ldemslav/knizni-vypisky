@@ -1,3 +1,4 @@
+import { BookTest, BookTestQuestion } from '@/types'
 import { defineStore } from 'pinia'
 import { reactive } from 'vue'
 import { db } from '@/main'
@@ -5,24 +6,8 @@ import {
     getDocs,
     query,
     where,
-    DocumentReference,
-    DocumentData,
     collection
 } from '@firebase/firestore'
-
-interface BookTest {
-    id: string,
-    user_id: string | undefined,
-    book_collection_id: DocumentReference<DocumentData>,
-    questions: Array< DocumentReference<DocumentData> >
-}
-
-interface BookTestQuestion {
-    id: string,
-    text: string,
-    book_id: string,
-    answers: Array<{ id: string, text: string, isCorrect: boolean }>
-}
 
 export const useBookTestsStore = defineStore("bookTst", () => {
     

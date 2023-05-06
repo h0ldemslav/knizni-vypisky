@@ -1,3 +1,4 @@
+import { User } from '@/types'
 import { defineStore } from 'pinia'
 import { ref, reactive } from 'vue'
 import { computed } from '@vue/reactivity'
@@ -10,12 +11,8 @@ import {
     onAuthStateChanged 
 } from 'firebase/auth'
 
-interface User {
-    id: string | undefined
-}
-
 export const useAuthStore = defineStore("auth", () => {
-    let user: User = reactive({
+    let user: User  = reactive({
         id: undefined
     })
 

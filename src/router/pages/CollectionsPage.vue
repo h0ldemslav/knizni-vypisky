@@ -10,10 +10,11 @@
 <script lang="ts" setup>
     import Header from '@/components/Header.vue'
     import { onMounted } from 'vue'
-    import { BookCollection, useBookCollectionsStore } from '@/stores/bookCollections'
+    import { useBookCollectionsStore } from '@/stores/bookCollections'
     import { useAuthStore } from '@/stores/auth'
     import { bookCollectionsRef } from '@/main'
     import { query, where, onSnapshot } from '@firebase/firestore'
+    import { BookCollection } from '@/types'
     
     const authStore = useAuthStore()
     const bookCollectionsStore = useBookCollectionsStore()

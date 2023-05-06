@@ -1,3 +1,4 @@
+import { BookCollection } from '@/types'
 import { defineStore } from 'pinia'
 import { reactive } from 'vue'
 import { db, bookCollectionsRef } from '@/main'
@@ -9,14 +10,6 @@ import {
     arrayRemove, 
     arrayUnion
 } from '@firebase/firestore'
-
-
-export interface BookCollection {
-    id: string,
-    title: string,
-    books: Array<string>,
-    user_id: string
-}
 
 export const useBookCollectionsStore = defineStore("bookCols", () => {
 

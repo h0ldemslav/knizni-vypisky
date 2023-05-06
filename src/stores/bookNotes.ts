@@ -1,3 +1,4 @@
+import { WriteOperation, BookNote } from '@/types'
 import { defineStore } from 'pinia'
 import { reactive, ref } from 'vue'
 import { db, bookNotesRef } from '@/main'
@@ -10,17 +11,6 @@ import {
     updateDoc,
     deleteDoc 
 } from '@firebase/firestore'
-
-export enum WriteOperation {
-    Create, Update, Delete
-}
-
-interface BookNote {
-    id: string,
-    fields: Array<{ name: string, value: string }>,
-    book_id: string,
-    user_id: string | undefined
-}
 
 export const useBookNotesStore = defineStore("bookNts", () => {
 
