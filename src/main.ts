@@ -6,6 +6,7 @@ import '@mdi/font/css/materialdesignicons.css'
 import '@/assets/style.css'
 import router from '@/router'
 import { createPinia } from 'pinia'
+import { useAuthStore } from './stores/auth'
 
 import { initializeApp } from '@firebase/app'
 import { getAuth } from '@firebase/auth'
@@ -27,7 +28,11 @@ export const bookCollectionsRef = collection(db, "book_collections") // referenc
 export const bookNotesRef = collection(db, "book_notes")
 
 const app = createApp(App)
+
 app.use(createPinia())
+const authStore = useAuthStore()
+await authStore.getCurrentAuthUserID
+
 app.use(vuetify)
 app.use(router)
 app.mount('#app')

@@ -18,15 +18,26 @@ export const useAuthStore = defineStore("auth", () => {
 
     let errorMessage = ref("")
 
-    const isUserLoggedIn = computed(() => user.id !== undefined ? true : false)
+    const getCurrentAuthUserID = new Promise<void>((resolve) => {
+        onAuthStateChanged(auth, (authUser) => {
+            user.id = authUser?.uid
+            resolve()
+        })
+    })
+    
+    const isUserLoggedIn = computed(() => user.id !== undefined)
 
     const registerUser = (email: string, password: string) => {
         createUserWithEmailAndPassword(auth, email, password)
             .then(() => {
                 errorMessage.value = ""
+                router.push("/")
             }).catch((error) => {
                 if (error.code === "auth/email-already-in-use") {
                     errorMessage.value = "Zadaný email již existuje"
+                } else {
+                    // Wild card
+                    console.log(error)
                 }
             })
     }
@@ -42,6 +53,9 @@ export const useAuthStore = defineStore("auth", () => {
                     errorMessage.value = "Špatně zadaný email/heslo"
                 } else if (error.code === "auth/too-many-requests") {
                     errorMessage.value = "Příliš mnoho pokusů o přihlášení. Zkuste se přihlásit později"
+                } else {
+                    // Wild card
+                    console.log(error)
                 }
             })
     }
@@ -53,10 +67,14 @@ export const useAuthStore = defineStore("auth", () => {
                 localStorage.removeItem("pagePath")
             })   
     }
-    
-    onAuthStateChanged(auth, (authUser) => {
-        user.id = authUser?.uid
-    })
 
-    return { user, registerUser, loginUser, logoutUser, isUserLoggedIn, errorMessage }
+    return { 
+        getCurrentAuthUserID,
+        user,
+        isUserLoggedIn, 
+        registerUser, 
+        loginUser, 
+        logoutUser,
+        errorMessage 
+    }
 })

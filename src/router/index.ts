@@ -31,7 +31,10 @@ const routes: RouteRecordRaw[] = [
     {
         path: "/login",
         name: "auth",
-        component: () => import("@/router/pages/AuthPage.vue")
+        component: () => import("@/router/pages/AuthPage.vue"),
+        meta: {
+            requiresGuest: true
+        }
     }
 ]
 
@@ -42,11 +45,14 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
     const isAuthRequired = to.matched.some((record) => record.meta.requiresAuth)
+    const isGuestRequired = to.matched.some((record) => record.meta.requiresGuest)
     const authStore = useAuthStore()
 
     if (isAuthRequired && !authStore.isUserLoggedIn) {
         next({ name: "auth" })
         localStorage.setItem("pagePath", to.fullPath)
+    } else if (isGuestRequired && authStore.isUserLoggedIn) {
+        next({ name: "home"})
     } else {
         next()
     }
