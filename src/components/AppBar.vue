@@ -6,7 +6,7 @@
             <div class="d-flex align-center">
                 <v-icon>mdi-book-open-page-variant</v-icon>
                 <div class="ml-2">
-                    <router-link :to="{name: 'home'}">
+                    <router-link :to="{name: 'books'}">
                         KnížníVýpisky<span class="text-primary font-weight-bold">.cz</span>
                     </router-link>
                 </div>
