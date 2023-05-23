@@ -41,13 +41,16 @@ export class BooksApiClient {
         return BooksApiClient.INSTANCE
     }
 
-    async getBooks(orderBy: Order, query: string | undefined | null, maxResults: Number = 40): Promise<BookResponseDTO> {
-        if (query === undefined || query === null) {
-            query = ""
+    async getBooks(query: string = "", orderBy: Order, maxResults: Number = 40): Promise<BookResponseDTO> {
+        let url = `/volumes?printType=books&langRestrict=cs&maxResults=${maxResults}`
+        if (query !== "") {
+            url += `&q=${query}`
         }
 
-        const response = await
-            this.axiosInstance.get(`/volumes?q=${query}&printType=books&langRestrict=cs&maxResults=${maxResults}`)
+        const response = await this.axiosInstance.get(url)
+        if (!("items" in response.data)) {
+            return {books: [], totalBooksCount: 0}
+        }
 
         // @ts-ignore
         const books: Book[] = response.data.items.map((rawData) => {
