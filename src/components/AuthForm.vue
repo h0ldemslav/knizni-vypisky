@@ -6,19 +6,21 @@
         </div>
 
         <div class="textfield-wrapper">
-            <label for="password">Heslo</label>
-            <input id="password" class="basic-textfield" type="password" required v-model="formState.password">
+            <label for="password">
+                Heslo<input id="password" class="basic-textfield" type="password" required v-model="formState.password">
+            </label>
+            <div class="default-link supporting-text" v-if="authType.buttonLabel === 'Přihlásit se'">Zapomněl/a jste heslo?</div>
         </div>
         
         <div class="textfield-wrapper" v-if="authType.buttonLabel === 'Zaregistrovat se'">
             <label for="repeatPassword">Heslo</label>
             <input id="repeatPassword" class="basic-textfield" type="password" required v-model="formState.repeatPassword">
-            <div class="small-supportive">(zopakovat)</div>
+            <div class="small-supporting-text">(zopakovat)</div>
         </div>
 
         <div class="submit-wrapper">
             <button type="submit">{{ authType.buttonLabel }}</button>
-            <span class="supportive" @click="toggleButtonLabel">{{ authType.supportiveText }}</span>
+            <div class="default-link supporting-text" @click="toggleButtonLabel">{{ authType.supportiveText }}</div>
         </div>
 
         <div class="error-message" v-if="authStore.errorMessage">{{ authStore.errorMessage }}</div>
@@ -64,74 +66,95 @@
         } else if (authType.buttonLabel === "Zaregistrovat se") {
             authType.buttonLabel = "Přihlásit se"
             authType.supportiveText = "Nemáte účet? Zaregistrujte se"
-            
-            if (authStore.errorMessage !== "") authStore.errorMessage = ""
         }
+
+        if (authStore.errorMessage !== "") authStore.errorMessage = ""
     }
 </script>
 
 <style scoped>
-    /* TEMPORARY styling */
+    form {
+        margin: 2em 1em 2em 1em;
+    }
 
     label {
-        display: inline-block;
-        margin-right: 5em;
         font-weight: 400;
-        line-height: 31px;
         color: #000000;
     }
 
     input {
-        padding: 0.5em;
+        margin-left: 2em;
+        padding: 0.3em;
+    }
+    .basic-textfield {
+        background: #FFFFFF;
+        width: 14em;
+        box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+        border-radius: 4px;
+    }
+
+    .textfield-wrapper {
+        margin-bottom: 1.5em;
+    }
+
+    .textfield-wrapper:nth-child(2) .supporting-text {
+        margin-left: 5.1em;
+    }
+    
+    .small-supporting-text {
+        width: 10em;
+        font-size: 0.8em;
+        margin-bottom: -1em;
+    }
+
+    .supporting-text {
+        font-size: 0.9em;
+        cursor: pointer;
+        margin-top: 0.4em;
+    }
+
+    .supporting-text:hover {
+        color: #E4573D;
+        transition: 0.3;
     }
 
     button[type="submit"] {
         color: white;
         background: #E4573D;
         font-weight: bold;
-        width: 22em;
-        height: 2.5em;
-        padding: 0.5em;
-        margin: 1em;
-        margin-left: 7.5em;
-        border-radius: 10px;
+        width: 14em;
+        height: 2em;
+        padding: 0.3em 0;
+        border-radius: 4px;
+        margin-left: 4.55em;
+        margin-top: 0.5em;
         box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
     }
 
     button[type="submit"]:hover {
         background: #953726;
     }
-    .basic-textfield {
-        background: #FFFFFF;
-        width: 22em;
-        height: 2.5em;
-        box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-        border-radius: 10px;
+
+    .submit-wrapper .supporting-text {
+        text-align: center;
+        width: 16.3em;
+        margin-left: 4.7em;
     }
 
-    .textfield-wrapper {
-        margin-bottom: 1em;
+    @media screen and (min-width: 960px) {
+        .basic-textfield, 
+        button[type="submit"] {
+            width: 18em;
+        }
+
+        .submit-wrapper .supporting-text {
+            margin-left: 7.2em;
+        }
     }
 
-    .supportive {
-        color: blue;
-        text-decoration: underline;
-        cursor: pointer;
-    }
-
-    .supportive:hover {
-        text-decoration: none;
-    }
-
-    .small-supportive {
-        width: 10em;
-        font-size: 0.8em;
-        margin: 0;
-    }
-
-    .submit-wrapper {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
+    @media screen and (max-width: 1150px) {
+        form {
+            margin-right: 2em;
+        }
     }
 </style>

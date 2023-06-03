@@ -27,6 +27,16 @@ textarea {
     font-weight: bold;
     text-shadow: 1px 1px rgba(250, 250, 250, .3);
     background-color: #fce4e4;
-    padding: 1em;
+    padding: 0.5em;
     border: 1px solid #fcc2c3;
+    margin-top: 2em;
+}
+
+.default-link {
+    color: blue;
+    text-decoration: underline;
+}
+
+.default-link:hover {
+    text-decoration: none;
 }

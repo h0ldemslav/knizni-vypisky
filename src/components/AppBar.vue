@@ -1,5 +1,5 @@
 <template>
-    <v-app-bar app color="secondary">
+    <v-app-bar app color="secondary" style="max-width: 1440px; left: auto">
         <v-spacer/>
 
         <v-toolbar-title>

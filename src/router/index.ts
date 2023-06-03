@@ -47,7 +47,7 @@ router.beforeEach((to, from, next) => {
         next({ name: "auth" })
         localStorage.setItem("pagePath", to.fullPath)
     } else if (isGuestRequired && authStore.isUserLoggedIn) {
-        next({ name: "home"})
+        next({ name: "books"})
     } else {
         next()
     }

@@ -11,3 +11,10 @@
 
 import AppBar from "@/components/AppBar.vue";
 </script>
+
+<style>
+    div#app {
+        max-width: 1440px;
+        margin: 0 auto;
+    }
+</style>
