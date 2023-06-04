@@ -3,6 +3,7 @@ import axios from "axios";
 import Config from "@/config";
 import {BookRating} from "@/model/BookRating";
 import {BookImage} from "@/model/BookImage";
+import {ISBN, IsbnType, RawISBN} from "@/model/ISBN";
 
 export enum Order {
     NEWEST = "newest",
@@ -66,6 +67,20 @@ export class BooksApiClient {
     }
 
     private parseBook(rawData: any): Book {
+        let isbn: ISBN[] = []
+        if ("industryIdentifiers" in rawData.volumeInfo && rawData.volumeInfo.industryIdentifiers.length != 0) {
+            rawData.volumeInfo.industryIdentifiers.forEach((rawIsbn: RawISBN) => {
+                switch (rawIsbn.type) {
+                    case ("ISBN_10"):
+                        isbn.push({type: IsbnType.ISBN_10, value: rawIsbn.identifier})
+                        break
+                    case ("ISBN_13"):
+                        isbn.push({type: IsbnType.ISBN_13, value: rawIsbn.identifier})
+                        break
+                }
+            })
+        }
+
         let subtitle = null
         if ("subtitle" in rawData.volumeInfo) {
             subtitle = rawData.volumeInfo.subtitle
@@ -113,6 +128,7 @@ export class BooksApiClient {
             id: rawData.id,
             title: rawData.volumeInfo.title,
             subtitle: subtitle,
+            isbn: isbn,
             description: description,
             authors: rawData.volumeInfo.authors,
             publishedDate: rawData.volumeInfo.publishedDate,
