@@ -8,7 +8,7 @@ import {
     createUserWithEmailAndPassword, 
     signInWithEmailAndPassword, 
     signOut, 
-    onAuthStateChanged 
+    onAuthStateChanged  
 } from 'firebase/auth'
 
 export const useAuthStore = defineStore("auth", () => {

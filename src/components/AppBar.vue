@@ -16,7 +16,7 @@
         <v-spacer/>
         <v-spacer/>
 
-        <router-link v-for="link in links" :to="{name: link.linkName}"
+        <router-link v-for="link in links" :key=link.title :to="{name: link.linkName}"
                      :class="isCurrentLink(link) ? 'current-link' : ''">
             <v-btn :prepend-icon="link.symbol" variant="plain">
                 {{ link.title }}

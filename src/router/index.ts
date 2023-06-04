@@ -30,7 +30,15 @@ const routes: RouteRecordRaw[] = [
         meta: {
             requiresGuest: true
         }
-    }
+    },
+    {
+        path: "/testy/generace",
+        name: "test-generation",
+        component: () => import("@/router/pages/TestGenerationPage.vue"),
+        meta: {
+            requiresAuth: true
+        }    
+    },
 ]
 
 const router = createRouter({
