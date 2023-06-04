@@ -43,3 +43,14 @@ export interface BookTestQuestion {
     book_id: string,
     answers: Array<{ id: string, text: string, isCorrect: boolean }>
 }
+
+// Book detail
+
+export enum BookLanguage {
+    Czech = "čeština",
+    English = "angličtina",
+    German = "němčina",
+    French = "francouzština",
+    Spanish = "španělština",
+    Chinese = "čínština"
+}

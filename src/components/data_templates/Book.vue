@@ -1,21 +1,23 @@
 <template>
-    <article>
-        <v-row>
-            <v-col>
-                <img v-if="props.book.image" :src="props.book.image?.smallThumbnail" :alt="props.book.title"/>
-                <img v-else src="https://cdn-icons-png.flaticon.com/512/207/207114.png" alt="obrázek knihy nenalezen"/>
-            </v-col>
-            <v-col>
-                <h4>{{ props.book.title }}</h4>
-                <div v-if="props.book.authors && props.book.authors.length > 0">{{ props.book.authors[0] }}</div>
-                <div v-else>Autor neuveden</div>
-                <!-- TODO RATING -->
-                <div class="description" v-if="props.book.description">
-                    {{ props.book.description }}
-                </div>
-            </v-col>
-        </v-row>
-    </article>
+   <router-link :to="{ name: 'book_detail' , params: { id: props.book.id } }">
+        <article>
+            <v-row>
+                <v-col>
+                    <img v-if="props.book.image" :src="props.book.image?.smallThumbnail" :alt="props.book.title"/>
+                    <img v-else src="https://cdn-icons-png.flaticon.com/512/207/207114.png" alt="obrázek knihy nenalezen"/>
+                </v-col>
+                <v-col>
+                    <h4>{{ props.book.title }}</h4>
+                    <div v-if="props.book.authors && props.book.authors.length > 0">{{ props.book.authors[0] }}</div>
+                    <div v-else>Autor neuveden</div>
+                    <!-- TODO RATING -->
+                    <div class="description" v-if="props.book.description">
+                        {{ props.book.description }}
+                    </div>
+                </v-col>
+            </v-row>
+        </article>
+    </router-link>
 </template>
 
 <script setup lang="ts">

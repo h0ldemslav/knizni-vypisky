@@ -8,6 +8,17 @@ const routes: RouteRecordRaw[] = [
         component: () => import("@/router/pages/BooksPage.vue")
     },
     {
+        path: "/detail_knihy/:id",
+        name: "book_detail",
+        component: () => import("@/router/pages/BookDetailPage.vue"),
+        props: true
+    },
+    { 
+        path: "/:pathMatch(.*)*", 
+        name: "page_not_found", 
+        component: () => import("@/router/pages/NotFoundPage.vue") 
+    },
+    {
         path: "/kolekce",
         name: "collections",
         component: () => import("@/router/pages/CollectionsPage.vue"),

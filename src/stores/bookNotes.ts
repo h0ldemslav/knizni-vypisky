@@ -1,6 +1,6 @@
 import { WriteOperation, BookNote } from '@/types'
 import { defineStore } from 'pinia'
-import { reactive, ref } from 'vue'
+import { ref } from 'vue'
 import { db, bookNotesRef } from '@/main'
 import {
     getDocs,
@@ -16,56 +16,46 @@ export const useBookNotesStore = defineStore("bookNts", () => {
 
     let dbWriteOperation = ref<WriteOperation>()
 
-    const currentBookNote = reactive<BookNote>({
-        id: "",
-        fields: [],
-        book_id: "",
-        user_id: undefined
-    })
-
-    const createBookNote = () => {
-        addDoc(bookNotesRef, {
-            fields: currentBookNote.fields,
-            book_id: currentBookNote.book_id,
-            user_id: currentBookNote.user_id
+    const createBookNote = async (bookNote: BookNote): Promise<string> => {
+        const docRef = await addDoc(bookNotesRef, {
+            fields: bookNote.fields,
+            book_id: bookNote.book_id,
+            user_id: bookNote.user_id
         })
-            .then((doc) => {
-                currentBookNote.id = doc.id
-                dbWriteOperation.value = WriteOperation.Update
-            })
+        
+        dbWriteOperation.value = WriteOperation.Update
+        return docRef.id
     }
-
-    const getBookNote = (book_id: string, user_id: string) => {
+    
+    const getBookNote = async (book_id: string, user_id: string): Promise<BookNote | undefined> => {
         const q = query(bookNotesRef, where("book_id", "==", book_id), where("user_id", "==", user_id))
+        const snapshot = await getDocs(q) 
 
-        getDocs(q)
-            .then((snapshot) => {
-                // only one document expected
-
-                if (snapshot.docs.length !== 0) {
-                    dbWriteOperation.value = WriteOperation.Update
-
-                    currentBookNote.id = snapshot.docs[0].id
-                    currentBookNote.fields = snapshot.docs[0].data().fields
-                    currentBookNote.book_id = snapshot.docs[0].data().book_id
-                    currentBookNote.user_id = snapshot.docs[0].data().user_id
-                } else {
-                    dbWriteOperation.value = WriteOperation.Create
-                }
-            })
+        if (snapshot.docs.length !== 0) {
+            dbWriteOperation.value = WriteOperation.Update
+            return {
+                id: snapshot.docs[0].id,
+                fields: snapshot.docs[0].data().fields,
+                book_id: snapshot.docs[0].data().book_id,
+                user_id: snapshot.docs[0].data().user_id,
+             }
+        } else {
+            dbWriteOperation.value = WriteOperation.Create
+            return undefined
+        }
     }
 
-    const updateBookNote = () => {
-        updateDoc(doc(db, "book_notes", currentBookNote.id), currentBookNote)
+    const updateBookNote = async (bookNote: BookNote) => {
+        await updateDoc(doc(db, "book_notes", bookNote.id), { fields: bookNote.fields })
     }
 
-    const deleteBookNote = () => {
-        deleteDoc(doc(db, "book_notes", currentBookNote.id))
+    const deleteBookNote = async (bookNote: BookNote) => {
+        await deleteDoc(doc(db, "book_notes", bookNote.book_id))
     }
 
     return {
         dbWriteOperation,
-        currentBookNote,
+        
         createBookNote,
         getBookNote,
         updateBookNote,

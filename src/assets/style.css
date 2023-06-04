@@ -40,3 +40,8 @@ textarea {
 .default-link:hover {
     text-decoration: none;
 }
+
+.small-svg-icon {
+    width: 70px;
+    height: 70px;
+}
