@@ -11,9 +11,11 @@
                                  stačí si vybrat jakými testy chceš začít a můžeme se do toho pustit.
                             </p>
                         </v-container>
-                        <v-btn rounded="lg" class="ml-sm-16 mb-sm-0 mt-2 mb-8 btn" color="primary" small>
-                            Začít test
-                        </v-btn>
+                        <router-link :to="{name: 'test-generation'}">
+                            <v-btn rounded="lg" class="ml-sm-16 mb-sm-0 mt-2 mb-8 btn" color="primary" small>
+                                Začít test
+                            </v-btn>
+                        </router-link>    
                     </v-col>
                     <v-col cols="12" sm="2" class="d-flex justift-left my-11 hide-on-phone">
                         <img src="@/assets/bookshelf.png" class="bookshelf">
@@ -25,10 +27,10 @@
     <main>
         <v-row class="my-10">
             <v-col cols="12" md="6" class="d-flex justify-sm-end justify-center pr-sm-10">
-                <test-card :logo=ai buttonText="Generuj otázky" description= "Vygeneruj otázky ke zvolené kolekci"/>
+                <test-card url="test-generation" :logo=ai buttonText="Generuj otázky" description= "Vygeneruj otázky ke zvolené kolekci"/>
             </v-col>
             <v-col cols="12" md="5" class="d-flex justify-sm-start justify-center pl-sm-10">
-                <test-card :logo=page buttonText="Vytvoř otázky" description= "Vytvoř si vlastní otázky"/>
+                <test-card url="test-creation" :logo=page buttonText="Vytvoř otázky" description= "Vytvoř si vlastní otázky"/>
             </v-col>
         </v-row>
     </main>
@@ -51,7 +53,7 @@ import page from '@/assets/page.png'
 }
 
 .textDescription{
-    margin: 0 10.5vw 0 15.5vw;
+    margin: 0 8.5vw 0 13.5vw;
 
     @media only screen and (max-width: 648px){
         margin: 0 12px 0 28px;

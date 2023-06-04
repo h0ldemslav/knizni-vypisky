@@ -39,6 +39,14 @@ const routes: RouteRecordRaw[] = [
             requiresAuth: true
         }    
     },
+    {
+        path: "/testy/vytvoreni",
+        name: "test-creation",
+        component: () => import("@/router/pages/TestCreationPage.vue"),
+        meta: {
+            requiresAuth: true
+        }
+    }
 ]
 
 const router = createRouter({
