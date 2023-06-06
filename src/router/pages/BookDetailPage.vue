@@ -34,7 +34,7 @@
         <h2>Mé poznámky</h2>
 
         <form action="#" @submit.prevent="saveNote">
-            <div v-for="field in note?.fields">
+                <div v-for="field in note?.fields">
                 <input type="text" v-model="field.name">
                 <input type="text" v-model="field.value">
             </div>

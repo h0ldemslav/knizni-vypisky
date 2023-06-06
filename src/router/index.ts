@@ -53,10 +53,27 @@ const routes: RouteRecordRaw[] = [
     {
         path: "/testy/vytvoreni",
         name: "test-creation",
-        component: () => import("@/router/pages/TestCreationPage.vue"),
+        component: () => import("@/router/pages/TestCreatePage.vue"),
         meta: {
             requiresAuth: true
         }
+    },
+    {
+        path: "/testy/vlastni",
+        name: "custom-test",
+        component: () => import("@/router/pages/CustomTestPage.vue"),
+        meta: {
+            requiresAuth: true
+        }
+    },
+    {
+        path: "/testy/:id/:count",
+        name: "generated-test",
+        component: () => import("@/router/pages/GeneratedTestsPage.vue"),
+        meta: {
+            requiresAuth: true
+        },
+        props: true
     }
 ]
 
