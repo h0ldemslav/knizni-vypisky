@@ -10,6 +10,7 @@ import {
     doc,
     addDoc,
     writeBatch,
+    deleteDoc,
 } from '@firebase/firestore'
 
 export const useBookTestsStore = defineStore("bookTst", () => {
@@ -78,6 +79,49 @@ export const useBookTestsStore = defineStore("bookTst", () => {
         return newAnswers
     }
 
+    const deleteTestCompletely = async (test_id: string) => {
+        const questionsToDelete = testQuestions.filter((question) => question.test_id === test_id).map((question) => question.id)
+        const answersToDelete = testAnswers.filter((answer) => questionsToDelete.includes(answer.question_id)).map((answer) => answer.id)
+        
+        const batch = writeBatch(db)
+
+        answersToDelete.forEach((answer_id) => {
+            const answerRef = doc(db, "test_answers", answer_id)
+            batch.delete(answerRef)
+        })
+
+        questionsToDelete.forEach((question_id) => {
+            const questionRef = doc(db, "test_questions", question_id)
+            batch.delete(questionRef)
+        })
+
+        const testRef = doc(db, "book_tests", test_id)
+        batch.delete(testRef)
+
+        await batch.commit()
+    }
+
+    const deleteQuestion = async (question_id: string) => {
+        const answersToDelete = testAnswers.filter((answer) => answer.question_id === question_id).map((answer) => answer.id)
+
+        const batch = writeBatch(db)
+
+        answersToDelete.forEach((answer_id) => {
+            const answerRef = doc(db, "test_answers", answer_id)
+            batch.delete(answerRef)
+        })
+
+        const questionRef = doc(db, "test_questions", question_id)
+        batch.delete(questionRef)
+
+        await batch.commit()
+    }
+
+    const deleteAnswer = async (answer_id: string) => {
+        const answerRef = doc(db, "test_answers", answer_id)
+        await deleteDoc(answerRef)
+    }
+
     const getAllTests = async (user_id: string | undefined) => {
         const q = query(collection(db, "book_tests"), where("user_id", "==", user_id))
         const snapshot = await getDocs(q)
@@ -143,11 +187,17 @@ export const useBookTestsStore = defineStore("bookTst", () => {
         tests,
         testQuestions,
         testAnswers,
+
+        getAllTests,
+        getAllQuestionsByTestID,
+        getAllAnswers,
+
         createNewTest,
         addQuestionsToTest,
         addAnswersToTest,
-        getAllTests,
-        getAllQuestionsByTestID,
-        getAllAnswers
+
+        deleteTestCompletely,
+        deleteQuestion,
+        deleteAnswer
     }
 })
