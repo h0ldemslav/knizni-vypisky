@@ -46,7 +46,7 @@
                     <v-card-text class="d-flex flex-column align-center">
                         <h2>Výsledek testu</h2>
                         <p>Počet správných odpovědí: {{ questionsCorrect }} / {{ bookTestsStore.testQuestions.length }}</p>
-                        <p>Procentuální úspěšnost: {{ percentageOfQuestionsAnswered }} %</p>
+                        <p>Procentuální úspěšnost: {{ questionsCorrect/bookTestsStore.testQuestions.length*100 }} %</p>
                     </v-card-text>
                     <v-card-actions>
                         <v-btn color="primary" block @click="dialog.value = false">Close Dialog</v-btn>
@@ -107,6 +107,8 @@ onMounted(async () => {
     //sort testy podle knih, at jsou testy na jednu knihu u sebe
     await bookTestsStore.getAllTests(authStore.user.id)
     await bookTestsStore.getAllQuestionsByTestID(bookTestsStore.tests[0])
+    //Lucka mi na stranku posle id bookTestu a ja si podle nej pak najdu questions
+    //await bookTestsStore.getAllQuestionsByTestID(bookTestsStore.tests.filter(test =>test.id === props.testId))
     await bookTestsStore.getAllAnswers()
 })
 
