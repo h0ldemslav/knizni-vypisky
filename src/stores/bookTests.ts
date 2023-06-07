@@ -11,6 +11,7 @@ import {
     addDoc,
     writeBatch,
     deleteDoc,
+    updateDoc,
 } from '@firebase/firestore'
 
 export const useBookTestsStore = defineStore("bookTst", () => {
@@ -19,25 +20,25 @@ export const useBookTestsStore = defineStore("bookTst", () => {
     const testQuestions = reactive<Array<BookTestQuestion>>([])
     const testAnswers = reactive<Array<BookTestAnswer>>([])
 
-    const createNewTest = async (test: BookTest): Promise<BookTest> => {
+    const createNewTest = async (test: BookTest) => {
         const { name, is_generated, user_id, book_collection_id } = test
         const newTestRef = await addDoc(collection(db, "book_tests"), { name, is_generated, user_id, book_collection_id })
 
-        return {
+        tests.push({
             id: newTestRef.id,
             name: name,
             is_generated: is_generated,
             user_id: user_id,
             book_collection_id: book_collection_id
-        }
+        })
     }
 
-    const addQuestionsToTest = async (questions: Array<BookTestQuestion>): Promise<Array<BookTestQuestion>> => {
+    const addQuestionsToTest = async (questions: Array<BookTestQuestion>) => {
         // Batch allows to execute multiple operations together
         // https://firebase.google.com/docs/firestore/manage-data/transactions#batched-writes
         const batch = writeBatch(db)
-
-        const newQuestions: Array<BookTestQuestion> = questions.map((question) => {
+        
+        testQuestions.push(...questions.map((question) => {
             const newRef = doc(collection(db, "test_questions"))
             const { text, book_id, test_id, selected_answer_id } = question
             
@@ -50,17 +51,15 @@ export const useBookTestsStore = defineStore("bookTst", () => {
                 test_id: test_id,
                 selected_answer_id: selected_answer_id
             }
-        })
+        }))
 
         await batch.commit()
-
-        return newQuestions
     }
 
-    const addAnswersToTest = async (answers: Array<BookTestAnswer>): Promise<Array<BookTestAnswer>> => {
+    const addAnswersToTest = async (answers: Array<BookTestAnswer>) => {
         const batch = writeBatch(db)
 
-        const newAnswers = answers.map((answer) => {
+        testAnswers.push(...answers.map((answer) => {
             const newRef = doc(collection(db, "test_answers"))
             const { text, is_correct, question_id } = answer
 
@@ -72,11 +71,32 @@ export const useBookTestsStore = defineStore("bookTst", () => {
                 is_correct: is_correct,
                 question_id: question_id
             }
+        }))
+
+        await batch.commit()
+    }
+
+    const updateTestName = async (test_id: string, name: string) => {
+        const testRef = doc(db, "book_tests", test_id)
+        await updateDoc(testRef, { name: name })
+    }
+
+    const updateQuestionsAndAnswers = async () => {
+        const batch = writeBatch(db)
+
+        testQuestions.forEach((question) => {
+            const { text, book_id, test_id, selected_answer_id } = question
+            const questionRef = doc(db, "test_questions", question.id)
+            batch.update(questionRef, { text, book_id, test_id, selected_answer_id })
+        })
+
+        testAnswers.forEach((answer) => {
+            const { text, is_correct, question_id } = answer
+            const answerRef = doc(db, "test_answers", answer.id)
+            batch.update(answerRef, { text, is_correct, question_id })
         })
 
         await batch.commit()
-
-        return newAnswers
     }
 
     const deleteTestCompletely = async (test_id: string) => {
@@ -195,6 +215,9 @@ export const useBookTestsStore = defineStore("bookTst", () => {
         createNewTest,
         addQuestionsToTest,
         addAnswersToTest,
+
+        updateTestName,
+        updateQuestionsAndAnswers,
 
         deleteTestCompletely,
         deleteQuestion,
