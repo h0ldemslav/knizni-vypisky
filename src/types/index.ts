@@ -1,5 +1,3 @@
-import { DocumentReference, DocumentData } from '@firebase/firestore'
-
 // User auth
 
 export interface User {
@@ -12,7 +10,7 @@ export interface BookCollection {
     id: string,
     title: string,
     books: Array<string>,
-    user_id: string
+    user_id: string | undefined
 }
 
 // Notes
@@ -32,16 +30,25 @@ export interface BookNote {
 
 export interface BookTest {
     id: string,
+    name: string,
+    is_generated: boolean,
     user_id: string | undefined,
-    book_collection_id: DocumentReference<DocumentData>,
-    questions: Array< DocumentReference<DocumentData> >
+    book_collection_id: string
 }
 
 export interface BookTestQuestion {
-    id: string,
+    id: string
     text: string,
     book_id: string,
-    answers: Array<{ id: string, text: string, isCorrect: boolean }>
+    test_id: string
+    selected_answer_id: string
+}
+
+export interface BookTestAnswer {
+    id: string
+    text: string,
+    is_correct: boolean,
+    question_id: string
 }
 
 // Book detail
