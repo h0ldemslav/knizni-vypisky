@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
+import type {BookTest} from '@/types'
 import { useAuthStore } from '@/stores/auth'
 
 const routes: RouteRecordRaw[] = [
@@ -53,18 +54,19 @@ const routes: RouteRecordRaw[] = [
     {
         path: "/testy/vytvoreni",
         name: "test-creation",
-        component: () => import("@/router/pages/TestCreatePage.vue"),
+        component: () => import("@/router/pages/CreateTestPage.vue"),
         meta: {
             requiresAuth: true
         }
     },
     {
-        path: "/testy/vlastni",
-        name: "custom-test",
-        component: () => import("@/router/pages/CustomTestPage.vue"),
+        path: "/testy/testy/:bookTestId",
+        name: "take-test",
+        component: () => import("@/router/pages/TakeTestPage.vue"),
         meta: {
             requiresAuth: true
-        }
+        },
+        props: true
     },
     {
         path: "/testy/:id/:count",
@@ -74,6 +76,14 @@ const routes: RouteRecordRaw[] = [
             requiresAuth: true
         },
         props: true
+    },
+    {
+        path: "/testy/vyber",
+        name: "test-selection",
+        component: () => import("@/router/pages/TestSelectionPage.vue"),
+        meta: {
+            requiresAuth: true
+        }
     }
 ]
 

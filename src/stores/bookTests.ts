@@ -161,8 +161,8 @@ export const useBookTestsStore = defineStore("bookTst", () => {
         })
     }
 
-    const getAllQuestionsByTestID = async (selectedTest: BookTest) => {
-        const q = query(collection(db, "test_questions"), where("test_id", "==", selectedTest.id))
+    const getAllQuestionsByTestID = async (id: string) => {
+        const q = query(collection(db, "test_questions"), where("test_id", "==", id))
         const snapshot = await getDocs(q)
 
         testQuestions.length = 0

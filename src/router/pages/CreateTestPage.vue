@@ -21,10 +21,14 @@
                 <v-radio
                 v-for="answer in bookTestsStore.testAnswers.filter(answer => answer.question_id === question.id)"
                 :key="answer.id"
-                :label="answer.text"
                 :value="answer.id + ': ' + answer.is_correct"
                 color="primary"
-                ></v-radio>
+                >
+                <template v-slot:label>
+                    <div v-if="state.answersSend" strong :class="answer.is_correct ? 'text-success' : 'text-error'"> {{ answer.text }}</div>
+                    <div v-else>{{ answer.text }}</div>
+                </template> 
+            </v-radio>
             </v-radio-group>
         </div>
 
@@ -32,9 +36,12 @@
 
         <v-progress-linear color="primary" :model-value=percentageOfQuestionsAnswered :height="20"></v-progress-linear>
 
-        <v-btn color="primary" @click="getSelectedValues">Odeslat test
+        <v-btn v-if="!state.answersSend" color="primary" @click="getSelectedValues">Odeslat test
+            <!-- proc @close nefunguje??!? -->
             <v-dialog
                 v-model="dialog.value"
+                @close="state.answersSend = true"
+                persistent
                 activator="parent"
                 transition="dialog-bottom-transition"
                 width="auto">
@@ -49,10 +56,13 @@
                         <p>Procentuální úspěšnost: {{ questionsCorrect/bookTestsStore.testQuestions.length*100 }} %</p>
                     </v-card-text>
                     <v-card-actions>
-                        <v-btn color="primary" block @click="dialog.value = false">Close Dialog</v-btn>
+                        <v-btn color="primary" block @click=" closeDialog">Zpět k testu</v-btn>
                     </v-card-actions>
                 </v-card>
             </v-dialog>
+        </v-btn>
+        <v-btn v-else color="primary" @click="router.push('/testy')">
+            Zpět na výběr testů
         </v-btn>
     </main>
 </template>
@@ -62,9 +72,14 @@ import Header from "@/components/Header.vue";
 import { useBookTestsStore } from "@/stores/bookTests";
 import { useAuthStore } from '@/stores/auth'
 import { onMounted, computed, reactive, ref} from 'vue'
+import router from '@/router/index'
 
 const dialog = reactive({
     value: false
+})
+
+const state = reactive({
+    answersSend: false
 })
 
 const percentageOfQuestionsAnswered = computed(() => Object.keys (selectedAnswers.value).length /
@@ -73,15 +88,16 @@ const percentageOfQuestionsAnswered = computed(() => Object.keys (selectedAnswer
 const selectedAnswers = ref<Record<string, string>>({});
 let questionsCorrect = computed(() => -1)
 
-const state = reactive({
-    answersSend: false
-})
+const closeDialog = () => {
+    dialog.value = false
+    state.answersSend = true
+}
 
 
 const getSelectedValues = () => {
     console.log(Object.keys(selectedAnswers.value).length)
     console.log(selectedAnswers.value)
-    state.answersSend = true
+    // state.answersSend = true
     questionsCorrect = computed(() => Object.values(selectedAnswers.value).filter(answer => answer.includes('true')).length)
 }
 

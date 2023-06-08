@@ -9,12 +9,10 @@
                             Chceš si ověřit, jak dobře znáš knížky, které jsi četl? Vyzkoušej si náš test znalostí! Je to úplně jednoduché,
                              stačí si vybrat jakými testy chceš začít a můžeme se do toho pustit.
                         </p>
-                        <router-link :to="{name: 'test-generation'}">
-                            <router-link :to="{name: 'custom-test'}">
-                                <v-btn rounded="lg" class="mb-sm-0 mb-8 btn marginLeft" color="primary" small>
-                                    Začít test
-                                </v-btn>
-                            </router-link>
+                        <router-link :to="{name: 'test-selection'}">
+                            <v-btn rounded="lg" class="mb-sm-0 mb-8 btn marginLeft" color="primary" small>
+                                Začít test
+                            </v-btn>
                         </router-link>    
                     </v-col>
                     <v-col cols="12" sm="2" class="d-flex justift-left my-11 hide-on-phone">
@@ -33,7 +31,7 @@
                 <test-card url="test-creation" :logo=page buttonText="Vytvoř otázky" description= "Vytvoř si vlastní otázky"/>
             </v-col>
             <v-col cols="12" md="3" class="d-flex justify-sm-start justify-center">
-                <test-card url="custom-test" :logo=check buttonText="Vlastní testy" description= "Otestuj svoje znalosti na vlastních otázkách"/>
+                <test-card url="test-selection" :logo=check buttonText="Vlastní testy" description= "Otestuj svoje znalosti na vlastních otázkách"/>
             </v-col>
         </v-row>
     </main>
