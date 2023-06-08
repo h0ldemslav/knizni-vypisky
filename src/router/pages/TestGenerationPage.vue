@@ -2,9 +2,10 @@
     <Header>
         <v-row>
             <v-col cols="12" sm="6">
-                <h1 class="leftMargin mt-sm-9">Generace testových otázek</h1>
-                <p class="leftMargin">Zde si můžeš naším algoritmem nechat vygenerovat <br> otázky vztahující se k tebou vybrané kolekci knížek.</p>
-                <v-sheet max-width="200" class="leftMargin mb-4">
+                <h1 class="leftMargin mt-9">Generace testových otázek</h1>
+                <v-col>
+                    <p class="leftMargin">Zde si můžeš naším algoritmem nechat vygenerovat otázky vztahující se k tebou vybrané kolekci knížek.</p>
+                <v-sheet max-width="200" class="leftMargin mb-4 mt-4">
                     <v-form  @submit.prevent class="formBackground">
                     <v-text-field
                         type="number"
@@ -20,6 +21,7 @@
                         </v-btn>
                     </v-form>
              </v-sheet>
+            </v-col>
             </v-col>
             <v-col cols="12" sm="6">
                 <Book v-if="lastClickedBook !== null"
@@ -130,10 +132,10 @@ onMounted(() => {
 <style scoped>
 
 .leftMargin {
-    margin: 20px 0 0 130px;
+    margin-left: 130px;
 
     @media screen and (max-width: 648px){
-        margin: 20px 50px 0 30px;
+        margin: 0 50px 0 30px;
         text-align: left;
     }
 }

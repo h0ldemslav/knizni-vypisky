@@ -1,11 +1,11 @@
 <template>
     <Header>
         <v-row>
-            <v-col cols="12" md="8">
+            <v-col cols="12" md="7">
                 <v-row>
-                    <v-col cols="12" sm="10" class="d-flex flex-column  mt-8 pl-sm-16">
+                    <v-col cols="12" class="d-flex flex-column align-right mt-8">
                         <h1 class="marginLeft">Test znalostí</h1>
-                        <p class="marginLeft">
+                        <p class="marginLeft pl-3">
                             Chceš si ověřit, jak dobře znáš knížky, které jsi četl? Vyzkoušej si náš test znalostí! Je to úplně jednoduché,
                              stačí si vybrat jakými testy chceš začít a můžeme se do toho pustit.
                         </p>
@@ -15,11 +15,11 @@
                             </v-btn>
                         </router-link>    
                     </v-col>
-                    <v-col cols="12" sm="2" class="d-flex justift-left my-11 hide-on-phone">
-                        <img src="@/assets/bookshelf.png" class="bookshelf">
-                    </v-col>
                 </v-row>
             </v-col>
+            <v-col cols="12" sm="5" class="d-flex justift-left my-11 hide-on-phone">
+                        <img src="@/assets/bookshelf.png" class="bookshelf">
+                    </v-col>
         </v-row>
     </Header>
     <main>
@@ -57,12 +57,17 @@ import check from '@/assets/check.png'
 /* Changing the CAPITAL text from the button to minuscule */
 .btn {
   text-transform: unset !important;
+  margin-left: 230px !important;
+
+  @media only screen and (max-width: 648px){
+        margin-left: 38px !important;
+    }
 }
 
 .marginLeft{
-    margin-left: 200px;
-    margin-right: 220px;
-    margin-top: 20px;
+    margin-left: 220px;
+    margin-right: 210px;
+    margin-top: 17px;
 
     @media only screen and (max-width: 648px){
         margin: 20px 70px 0 28px;
