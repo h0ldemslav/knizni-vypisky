@@ -3,10 +3,10 @@
     </Header>
 
     <main>
-        <div v-for="test in bookTestsStore.tests" @click="sendBookTest(test)">
+        <router-link :to="{name: 'take-test', params: {bookTestId: test.id}}" v-for="test in bookTestsStore.tests">
             {{ test.id }}
             {{ test.name }}
-        </div>
+        </router-link>
     </main>
 </template>
 
@@ -15,13 +15,6 @@ import Header from '@/components/Header.vue'
 import { useBookTestsStore } from "@/stores/bookTests";
 import { useAuthStore } from '@/stores/auth'
 import { onMounted, computed, reactive, ref} from 'vue'
-import { BookTest }  from '@/types/'
-import router from '@/router/index'
-
-const sendBookTest = (testik: BookTest) => {
-    router.push(`/testy/testy/${testik.id}`)
-}
-
 
 const bookTestsStore = useBookTestsStore()
 const authStore = useAuthStore()
