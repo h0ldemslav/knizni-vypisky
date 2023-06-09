@@ -176,9 +176,6 @@ const getBookOnHover = async (bookId: string) => {
 
 onMounted(async () => {
     await bookTestsStore.getAllTests(authStore.user.id)
-    console.log(props.bookTestId)
-    // await bookTestsStore.getAllQuestionsByTestID(bookTestsStore.tests[0])
-    //Lucka mi na stranku posle id bookTestu a ja si podle nej pak najdu questions
     await bookTestsStore.getAllQuestionsByTestID(props.bookTestId)
     await bookTestsStore.getAllAnswers()
 

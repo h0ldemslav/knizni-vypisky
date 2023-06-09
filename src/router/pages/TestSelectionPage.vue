@@ -1,12 +1,16 @@
 <template>
     <Header>
     </Header>
-
     <main>
-        <router-link :to="{name: 'take-test', params: {bookTestId: test.id}}" v-for="test in bookTestsStore.tests">
-            {{ test.id }}
-            {{ test.name }}
-        </router-link>
+        <div  v-for="test in bookTestsStore.tests">
+            <router-link :to="{name: 'take-test', params: {bookTestId: test.id}}">
+                {{ test.id }}
+                {{ test.name }}
+            </router-link>
+            <router-link :to="{name: 'test-creation', params: {testId: test.id}}">
+                <v-btn color="primary">Upravit</v-btn>
+            </router-link>
+        </div>
     </main>
 </template>
 

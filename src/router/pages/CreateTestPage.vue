@@ -15,55 +15,90 @@
         </v-row>
     </Header>
     <main>
-        <div v-for="question in bookTestsStore.testQuestions" :key="question.id">
-            <h3>{{ question.text }}</h3>
-            <v-radio-group v-model="selectedAnswers[question.id]">
+        <v-row>
+        <v-col cols="12" sm="7" class="mt-7">
+        <h1 class="testoveOtazkyHeaderMargin">Vlatní testové otázky</h1>
+        <div v-for="(question, index) in bookTestsStore.testQuestions" :key="question.id" class="mt-4 ml-16">
+            <div :id="question.id">
+            <v-row>
+                <v-col cols="10">
+                    <h3>{{index + 1}}. {{ question.text }}</h3>
+                </v-col>
+                <v-col cols="2">
+                    <v-btn color="primary" @click="deleteQuestion(question.id)">Smazat</v-btn>
+                </v-col>
+            </v-row>
+            <v-radio-group 
+                v-model="selectedAnswers[question.id]" 
+                @mouseenter="getBookOnHover(question.book_id)"
+                @mouseleave="getBookOnHover('')"
+                >
                 <v-radio
                 v-for="answer in bookTestsStore.testAnswers.filter(answer => answer.question_id === question.id)"
                 :key="answer.id"
                 :value="answer.id + ': ' + answer.is_correct"
                 color="primary"
+                class="ml-3"
+                :disabled="state.answersSend"
                 >
                 <template v-slot:label>
                     <div v-if="state.answersSend" strong :class="answer.is_correct ? 'text-success' : 'text-error'"> {{ answer.text }}</div>
-                    <div v-else>{{ answer.text }}</div>
+                    <div v-else> {{ answer.text }}</div>
                 </template> 
             </v-radio>
             </v-radio-group>
+            </div>
         </div>
 
-        <p> {{ percentageOfQuestionsAnswered }}</p>
-
-        <v-progress-linear color="primary" :model-value=percentageOfQuestionsAnswered :height="20"></v-progress-linear>
-
-        <v-btn v-if="!state.answersSend" color="primary" @click="getSelectedValues">Odeslat test
-            <!-- proc @close nefunguje??!? -->
-            <v-dialog
-                v-model="dialog.value"
-                @close="state.answersSend = true"
-                persistent
-                activator="parent"
-                transition="dialog-bottom-transition"
-                width="auto">
-                <!-- <v-toolbar
+        <v-btn v-if="!showQuestionInput" @click="showQuestionInput=true">
+            <v-icon icon="mdi-plus" />
+        </v-btn>
+        <div id="newQuestion">
+            <v-text-field label="Nová otázka" v-model="newQuestion.text" variant="underlined"></v-text-field>
+            <v-radio-group >
+                <v-radio v-for="answer in newAnswers"
+                :value="answer.text + ': ' + answer.is_correct"
+                :label = answer.text
+                color="primary">
+                </v-radio>
+                <v-radio  v-if="showQuestionInput"  
                 color="primary"
-                title=""
-                ><h2 class="ml-14">Výsledek testu</h2></v-toolbar> -->
-                <v-card>
-                    <v-card-text class="d-flex flex-column align-center">
-                        <h2>Výsledek testu</h2>
-                        <p>Počet správných odpovědí: {{ questionsCorrect }} / {{ bookTestsStore.testQuestions.length }}</p>
-                        <p>Procentuální úspěšnost: {{ questionsCorrect/bookTestsStore.testQuestions.length*100 }} %</p>
-                    </v-card-text>
-                    <v-card-actions>
-                        <v-btn color="primary" block @click=" closeDialog">Zpět k testu</v-btn>
-                    </v-card-actions>
-                </v-card>
-            </v-dialog>
+                :value="newAnswer.is_correct">
+                    <template v-slot:label>
+                        <v-text-field label="Nová odpověď" v-model="newAnswer.text" variant="underlined"></v-text-field>
+                    </template>
+                    
+                </v-radio>
+                <v-btn v-if="showQuestionInput" @click="udelejneco">Přidat odpověď</v-btn>
+
+            </v-radio-group>
+        </div>
+
+        <v-btn color="primary" class="ml-16 mt-3" @click="getSelectedValues">Uložit test
+            
         </v-btn>
-        <v-btn v-else color="primary" @click="router.push('/testy')">
-            Zpět na výběr testů
-        </v-btn>
+        </v-col>
+        <v-divider vertical class="mt-7 mr-5"></v-divider>
+        <v-col cols="12" sm="3">
+            <div id="testStatistics" class="fixedPosition mt-10">
+                <v-row>
+                     <h2>Vlastní otázky</h2>
+                </v-row>
+                <v-row>
+                    <v-col cols="7" class="ml-2">
+                        <h3>Otázek ke kolekci</h3>
+                    </v-col>
+                    <v-col cols="2">
+                        <p class="mt-0">{{ questionsTotal }}</p>
+                    </v-col>
+                </v-row>
+                <h2 class="mt-5">Kniha</h2>
+                <p class="font-weight-light mb-5 ml-2">Otázka se týká knihy</p>
+                <img v-if="hoveredBook !== null" :src="hoveredBook?.image?.smallThumbnail">
+                <div v-else></div>
+            </div>
+        </v-col>
+        </v-row>
     </main>
 </template>
 
@@ -71,8 +106,62 @@
 import Header from "@/components/Header.vue";
 import { useBookTestsStore } from "@/stores/bookTests";
 import { useAuthStore } from '@/stores/auth'
-import { onMounted, computed, reactive, ref} from 'vue'
+import { useBooksStore } from '@/stores/books'
+import { onMounted, computed, reactive, ref, defineProps} from 'vue'
+import { Book as BookInterface } from "@/model/Book";
+import { createVuetify } from 'vuetify'
+import { aliases,mdi } from 'vuetify/iconsets/mdi'
 import router from '@/router/index'
+
+const props = defineProps<{testId: string}>()
+
+const newQuestion = reactive({
+    text: "",
+    test_id: props.testId,
+    book_id: "",
+    selected_answer_id: "",
+})
+
+const showQuestionInput = ref(false)
+
+interface newAnswerInterface {
+    text: string,
+    is_correct: boolean,
+    question_id: string,
+}
+
+const createVuetify = ({
+  icons: {
+    defaultSet: 'mdi',
+    aliases,
+    sets: {
+      mdi,
+    },
+  },
+})
+
+const udelejneco = () => {
+    const newA: newAnswerInterface = {
+        text: newAnswer.text,
+        is_correct: newAnswer.is_correct,
+        question_id: "test"
+    }
+    newAnswer.text = ""
+    newAnswer.is_correct = false
+    showQuestionInput.value = false
+    newAnswers.push(newA)
+}
+
+const newAnswers = reactive<newAnswerInterface[]>([
+ 
+])
+
+const newAnswer = reactive({
+    text: "",
+    is_correct: false,
+    question_id: "",
+})
+
 
 const dialog = reactive({
     value: false
@@ -82,50 +171,70 @@ const state = reactive({
     answersSend: false
 })
 
-const percentageOfQuestionsAnswered = computed(() => Object.keys (selectedAnswers.value).length /
- bookTestsStore.testQuestions.length * 100)
+let questionsCorrect = -1
+
+const hoveredBook = ref<BookInterface | null>(null)
 
 const selectedAnswers = ref<Record<string, string>>({});
-let questionsCorrect = computed(() => -1)
 
-const closeDialog = () => {
-    dialog.value = false
-    state.answersSend = true
-}
 
+const questionsAnswered = computed(() => Object.keys(selectedAnswers.value).length)
+//questionstotal nepujde i samo o sobe?
+const percentageOfQuestionsAnswered = computed(() => Math.round(Object.keys (selectedAnswers.value).length /
+bookTestsStore.testQuestions.length * 100))
 
 const getSelectedValues = () => {
     console.log(Object.keys(selectedAnswers.value).length)
     console.log(selectedAnswers.value)
-    // state.answersSend = true
-    questionsCorrect = computed(() => Object.values(selectedAnswers.value).filter(answer => answer.includes('true')).length)
+    questionsCorrect = Object.values(selectedAnswers.value).filter(answer => answer.includes('true')).length
 }
 
-const getLabelColor = computed((isCorrect: Boolean): string =>{
-    if(isCorrect && state.answersSend){
-        return 'green'
-    } else if(!isCorrect && state.answersSend){
-        return 'red'
-    } else{
-        return 'black'
-    }
-})
+const deleteQuestion = async (bookId: string ) => {
+    await bookTestsStore.deleteQuestion(bookId)
+    await bookTestsStore.getAllQuestionsByTestID(props.testId)
+    // const q = document.getElementById(bookId)
+    // console.log(q)
+    // if(q) {
+    //     q.remove()}
+    // const index = bookTestsStore.testQuestions.findIndex(question => question.book_id === bookId)
+    // if(index !== -1){
+    //     bookTestsStore.testQuestions.splice(index, 1)
+    // }
+}
 
 
 const bookTestsStore = useBookTestsStore()
 const authStore = useAuthStore()
+const booksStore = useBooksStore()
 
-console.log(bookTestsStore.tests)
-console.log(bookTestsStore.testQuestions)
-console.log(bookTestsStore.testAnswers)
+const questionsTotal = computed(() => bookTestsStore.testQuestions.length)
+console.log('questionsTotal', questionsTotal)
+
+
+const getBookOnHover = async (bookId: string) => {
+    if(bookId !== ''){
+        const book =  await booksStore.getBookById(bookId)
+        if(book){
+            hoveredBook.value = book
+        }
+        console.log('book', hoveredBook)
+    } else{
+        hoveredBook.value = null
+    }
+}
 
 onMounted(async () => {
-    //sort testy podle knih, at jsou testy na jednu knihu u sebe
-    await bookTestsStore.getAllTests(authStore.user.id)
-    await bookTestsStore.getAllQuestionsByTestID(bookTestsStore.tests[0])
-    //Lucka mi na stranku posle id bookTestu a ja si podle nej pak najdu questions
-    //await bookTestsStore.getAllQuestionsByTestID(bookTestsStore.tests.filter(test =>test.id === props.testId))
-    await bookTestsStore.getAllAnswers()
+    if(props.testId !== 'new'){
+        await bookTestsStore.getAllTests(authStore.user.id)
+        await bookTestsStore.getAllQuestionsByTestID(props.testId)
+        await bookTestsStore.getAllAnswers()
+
+        bookTestsStore.testQuestions.sort((a, b) => {
+            if (a.book_id < b.book_id) return -1;
+            if (a.book_id > b.book_id) return 1;
+            return 0;
+        });
+    }
 })
 
 </script>
@@ -133,8 +242,12 @@ onMounted(async () => {
 <style scoped>
 
 .leftTopMargin {
-    margin-top: 20px;
-    margin-left: 25px;
+    margin: 55px 0 0 110px;
+
+    @media screen and (max-width: 648px){
+        margin: 30px 30px 0 20px;
+        text-align: left;
+    }
 }
 
 div > p {
@@ -143,6 +256,16 @@ div > p {
 
 .primary-color {
   color: #E4573D
+}
+
+.fixedPosition {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 10%
+}
+
+.testoveOtazkyHeaderMargin {
+    margin-left: 82px;
 }
 
 </style>

@@ -52,12 +52,14 @@ const routes: RouteRecordRaw[] = [
         }    
     },
     {
-        path: "/testy/vytvoreni",
+        path: "/testy/vytvoreni/:testId",
         name: "test-creation",
         component: () => import("@/router/pages/CreateTestPage.vue"),
         meta: {
             requiresAuth: true
-        }
+        },
+        props: true
+
     },
     {
         path: "/testy/testy/:bookTestId",
