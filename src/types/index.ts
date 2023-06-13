@@ -30,7 +30,7 @@ export interface BookNote {
 
 export interface BookTest {
     id: string,
-    name: string,
+    name: string | undefined,
     is_generated: boolean,
     user_id: string | undefined,
     book_collection_id: string

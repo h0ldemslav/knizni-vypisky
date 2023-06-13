@@ -1,3 +1,4 @@
+<!-- reseni - answers aby se ukladaly, ID ke questions a answers a vybirani book_id, pri upravit test ulozeni nakonci oddelat pojmenovani testu, nakonec uprava -->
 <template>
     <Header>
         <v-row>
@@ -50,6 +51,16 @@
             </div>
         </div>
 
+        <div v-for="question in newQuestions">
+            <h3>{{ question.text }} {{ question.id }}</h3>
+            <ul>
+                <li v-for="answer in templateNewAnswers.filter(a => a.question_id === question.id)" :color="answer.is_correct === true ? 'green' : 'red'">
+                    {{ answer.text }}
+                    {{  answer.question_id }}
+                </li>
+            </ul>
+        </div>
+
         <v-btn v-if="!showQuestionInput" @click="showQuestionInput=true">
             <v-icon icon="mdi-plus" />
         </v-btn>
@@ -57,7 +68,7 @@
             <v-text-field label="Nová otázka" v-model="newQuestion.text" variant="underlined"></v-text-field>
             <v-radio-group >
                 <v-radio v-for="answer in newAnswers"
-                :value="answer.text + ': ' + answer.is_correct"
+                :value="answer.id + ': ' + answer.is_correct"
                 :label = answer.text
                 color="primary">
                 </v-radio>
@@ -65,18 +76,55 @@
                 color="primary"
                 :value="newAnswer.is_correct">
                     <template v-slot:label>
-                        <v-text-field label="Nová odpověď" v-model="newAnswer.text" variant="underlined"></v-text-field>
+                        <v-text-field  label="Nová odpověď" v-model="newAnswer.text" variant="underlined"></v-text-field>
                     </template>
                     
                 </v-radio>
-                <v-btn v-if="showQuestionInput" @click="udelejneco">Přidat odpověď</v-btn>
-
+                <v-btn v-if="showQuestionInput" @click="saveAnswer">Uložit odpověď</v-btn>
             </v-radio-group>
+            <v-btn color="primary" @click="saveQuestion">Uložit otázku</v-btn>
         </div>
 
-        <v-btn color="primary" class="ml-16 mt-3" @click="getSelectedValues">Uložit test
-            
+        <v-btn color="primary" class="ml-16 mt-3" @click="openDialog">Uložit test
+            <v-dialog v-if="props.testId === 'new'"
+                v-model="dialog.saveDialog"
+                @close="state.answersSend = true"
+                activator="parent"
+                transition="dialog-bottom-transition"
+                width="300px">
+                <!-- <v-toolbar
+                color="primary"
+                title=""
+                ><h2 class="ml-14">Výsledek testu</h2></v-toolbar> -->
+                <v-card>
+                    <v-card-text>
+                        <h2 class="ml-11">Pojmenuj test</h2>
+                        <v-text-field label="Název testu" v-model="testName" variant="underlined"></v-text-field>
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-btn color="primary" class="pt-0" block @click="saveTest">Uložit test</v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
         </v-btn>
+        <v-btn color="primary" class="ml-16 mt-3">Smazat test
+            <v-dialog
+                v-model="dialog.deleteDialog"
+                @close="state.answersSend = true"
+                activator="parent"
+                transition="dialog-bottom-transition"
+                width="auto">
+                <v-card>
+                    <v-card-text class="d-flex flex-column align-center">
+                        <h2>Opravdu chceš test smazat?</h2>
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-btn color="primary" block @click="deleteTest">Smazat test</v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
+        </v-btn>
+
         </v-col>
         <v-divider vertical class="mt-7 mr-5"></v-divider>
         <v-col cols="12" sm="3">
@@ -107,64 +155,129 @@ import Header from "@/components/Header.vue";
 import { useBookTestsStore } from "@/stores/bookTests";
 import { useAuthStore } from '@/stores/auth'
 import { useBooksStore } from '@/stores/books'
-import { onMounted, computed, reactive, ref, defineProps} from 'vue'
+import { onMounted, computed, onBeforeUnmount, reactive, ref, defineProps} from 'vue'
 import { Book as BookInterface } from "@/model/Book";
-import { createVuetify } from 'vuetify'
-import { aliases,mdi } from 'vuetify/iconsets/mdi'
+import { BookTestAnswer}  from "@/types/index";
+import { BookTestQuestion } from "@/types/index";
+import { BookTest } from "@/types/index";
+import { db } from "@/main"
+import {
+    getDocs,
+    query,
+    where,
+    collection,
+    doc,
+    addDoc,
+    writeBatch,
+    deleteDoc,
+    updateDoc,
+} from '@firebase/firestore'
 import router from '@/router/index'
+
+const newTestRef = doc(collection(db, "book_tests"))
+const newQuestionRef = doc(collection(db, "test_questions"))
 
 const props = defineProps<{testId: string}>()
 
+const showQuestionInput = ref(false)
+
+const testName = ref<string | undefined>(undefined)
+
+const newAnswers = reactive<BookTestAnswer[]>([])
+let templateNewAnswers = reactive<BookTestAnswer[]>([])
+
+const arrayOfNewAnswers:Array<Array<BookTestAnswer>> = []
+
 const newQuestion = reactive({
-    text: "",
-    test_id: props.testId,
-    book_id: "",
+    id: newQuestionRef.id,
+    text: '',
+    // test_id: props.testId === 'new' ? newQuestionRef.id : props.testId,
+    book_id: '',
     selected_answer_id: "",
 })
 
-const showQuestionInput = ref(false)
-
-interface newAnswerInterface {
-    text: string,
-    is_correct: boolean,
-    question_id: string,
-}
-
-const createVuetify = ({
-  icons: {
-    defaultSet: 'mdi',
-    aliases,
-    sets: {
-      mdi,
-    },
-  },
+const newAnswer = reactive({
+    id: 0,
+    text: "",
+    is_correct: false,
+    question_id: -1,
 })
 
-const udelejneco = () => {
-    const newA: newAnswerInterface = {
+const newQuestions = Array<BookTestQuestion>()
+
+const deleteTest = () =>{
+    if(props.testId !== 'new') {
+    bookTestsStore.deleteTestCompletely(props.testId)
+    }
+    router.push('/testy/vyber')
+}
+
+const saveAnswer = () => {
+    const newA: BookTestAnswer = {
+        id: newAnswer.id.toString(),
         text: newAnswer.text,
         is_correct: newAnswer.is_correct,
-        question_id: "test"
+        question_id: '',
     }
+    newAnswer.id++
     newAnswer.text = ""
     newAnswer.is_correct = false
     showQuestionInput.value = false
     newAnswers.push(newA)
 }
 
-const newAnswers = reactive<newAnswerInterface[]>([
- 
-])
+const saveQuestion = async () => {
+    const newQ: BookTestQuestion = {
+        id: newQuestion.id.toString(),
+        text: newQuestion.text,
+        test_id: props.testId === 'new' ? '' : props.testId,
+        book_id: 'pridat potom',
+        selected_answer_id: newQuestion.selected_answer_id
+    }
+    console.log('id', newQuestion.id)
+    console.log('id2', newTestRef.id)
+    console.log('id3', newQ.id)
+    newQuestions.push(newQ)
+    if(props.testId !== 'new') {
+        await bookTestsStore.addQuestionsToTest(newQuestions, newQuestionRef)
+        newQuestions.splice(0, newQuestions.length)
+        await bookTestsStore.getAllQuestionsByTestID(props.testId)
+    }
+    newAnswers.forEach(a => a.question_id = newQuestion.id.toString())
+    // newQuestion.id++
+    newQuestion.text = ""
+    newQuestion.selected_answer_id = ""
+    templateNewAnswers = newAnswers.slice();
+    console.log(templateNewAnswers)
+    newAnswers.splice(0, newAnswers.length)
+}
 
-const newAnswer = reactive({
-    text: "",
-    is_correct: false,
-    question_id: "",
-})
-
+const saveTest = async () => {
+    dialog.saveDialog = false
+    let newQ: BookTestQuestion[] = []
+    const newBookTest: BookTest = {
+        id: '',
+        name: testName.value,
+        is_generated: false,
+        user_id: authStore.user.id,
+        book_collection_id: 'collection_id'
+    }
+    if(props.testId === 'new') {
+        await bookTestsStore.createNewTest(newBookTest)
+        newQ = newQuestions.map(q => (q.test_id = bookTestsStore.tests[bookTestsStore.tests.length-1].id, q))
+        await bookTestsStore.getAllTests(authStore.user.id)
+        await bookTestsStore.addQuestionsToTest(newQ, newQuestionRef)
+    } else {
+        await bookTestsStore.testQuestions.push(...newQuestions)
+        // bookTestsStore.testAnswers.push(...newAnswers)
+        await bookTestsStore.updateQuestionsAndAnswers()
+    }
+    router.push('/testy/vyber')
+}
 
 const dialog = reactive({
-    value: false
+    saveDialog: false,
+    deleteDialog: false,
 })
 
 const state = reactive({
@@ -183,10 +296,11 @@ const questionsAnswered = computed(() => Object.keys(selectedAnswers.value).leng
 const percentageOfQuestionsAnswered = computed(() => Math.round(Object.keys (selectedAnswers.value).length /
 bookTestsStore.testQuestions.length * 100))
 
-const getSelectedValues = () => {
-    console.log(Object.keys(selectedAnswers.value).length)
-    console.log(selectedAnswers.value)
-    questionsCorrect = Object.values(selectedAnswers.value).filter(answer => answer.includes('true')).length
+const openDialog = () => {
+    if(props.testId !== 'new'){
+        testName.value = bookTestsStore.tests.find(test => test.id === props.testId)?.name
+        saveTest()
+    }
 }
 
 const deleteQuestion = async (bookId: string ) => {
@@ -228,13 +342,11 @@ onMounted(async () => {
         await bookTestsStore.getAllTests(authStore.user.id)
         await bookTestsStore.getAllQuestionsByTestID(props.testId)
         await bookTestsStore.getAllAnswers()
-
-        bookTestsStore.testQuestions.sort((a, b) => {
-            if (a.book_id < b.book_id) return -1;
-            if (a.book_id > b.book_id) return 1;
-            return 0;
-        });
     }
+})
+
+onBeforeUnmount(async() => {
+    await bookTestsStore.testQuestions.splice(0, bookTestsStore.testQuestions.length)
 })
 
 </script>

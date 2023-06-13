@@ -10,6 +10,9 @@
             <router-link :to="{name: 'test-creation', params: {testId: test.id}}">
                 <v-btn color="primary">Upravit</v-btn>
             </router-link>
+            <v-btn color="primary" @click="deleteTest(test.id)">
+                Smazat
+            </v-btn>
         </div>
     </main>
 </template>
@@ -19,6 +22,11 @@ import Header from '@/components/Header.vue'
 import { useBookTestsStore } from "@/stores/bookTests";
 import { useAuthStore } from '@/stores/auth'
 import { onMounted, computed, reactive, ref} from 'vue'
+
+const deleteTest = async (testId: string) => {
+    await bookTestsStore.deleteTestCompletely(testId)
+    await bookTestsStore.getAllTests(authStore.user.id)
+}
 
 const bookTestsStore = useBookTestsStore()
 const authStore = useAuthStore()

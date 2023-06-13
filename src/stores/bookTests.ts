@@ -21,8 +21,8 @@ export const useBookTestsStore = defineStore("bookTst", () => {
     const testAnswers = reactive<Array<BookTestAnswer>>([])
 
     const createNewTest = async (test: BookTest) => {
-        const { name, is_generated, user_id, book_collection_id } = test
-        const newTestRef = await addDoc(collection(db, "book_tests"), { name, is_generated, user_id, book_collection_id })
+        const { id, name, is_generated, user_id, book_collection_id } = test
+        const newTestRef = await addDoc(collection(db, "book_tests"), {name, is_generated, user_id, book_collection_id })
 
         tests.push({
             id: newTestRef.id,
@@ -33,19 +33,19 @@ export const useBookTestsStore = defineStore("bookTst", () => {
         })
     }
 
-    const addQuestionsToTest = async (questions: Array<BookTestQuestion>) => {
+    const addQuestionsToTest = async (questions: Array<BookTestQuestion>, questionRef: any) => {
         // Batch allows to execute multiple operations together
         // https://firebase.google.com/docs/firestore/manage-data/transactions#batched-writes
         const batch = writeBatch(db)
         
         testQuestions.push(...questions.map((question) => {
-            const newRef = doc(collection(db, "test_questions"))
-            const { text, book_id, test_id, selected_answer_id } = question
+            // const newRef = doc(collection(db, "test_questions"))
+            const {text, book_id, test_id, selected_answer_id } = question
             
-            batch.set(newRef, { text, book_id, test_id, selected_answer_id })
+            batch.set(questionRef, {text, book_id, test_id, selected_answer_id })
 
             return { 
-                id: newRef.id,
+                id: questionRef.id,
                 text: text,
                 book_id: book_id,
                 test_id: test_id,
@@ -178,6 +178,12 @@ export const useBookTestsStore = defineStore("bookTst", () => {
                 }
             )
         })
+        //Sorting questions by book id, so that questions from the same book are grouped together
+        testQuestions.sort((a, b) => {
+            if (a.book_id < b.book_id) return -1;
+            if (a.book_id > b.book_id) return 1;
+            return 0;
+        });
     }
 
     const getAllAnswers = async () => {

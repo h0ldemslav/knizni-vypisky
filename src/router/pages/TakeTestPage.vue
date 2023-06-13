@@ -119,9 +119,10 @@ import Header from "@/components/Header.vue";
 import { useBookTestsStore } from "@/stores/bookTests";
 import { useAuthStore } from '@/stores/auth'
 import { useBooksStore } from '@/stores/books'
-import { onMounted, computed, reactive, ref, defineProps} from 'vue'
+import { onMounted, onBeforeUnmount , computed, reactive, ref, defineProps} from 'vue'
 import { Book as BookInterface } from "@/model/Book";
 import router from '@/router/index'
+import { before } from "node:test";
 
 const index=0
 
@@ -184,6 +185,10 @@ onMounted(async () => {
         if (a.book_id > b.book_id) return 1;
         return 0;
     });
+})
+
+onBeforeUnmount(async() => {
+    await bookTestsStore.testQuestions.splice(0, bookTestsStore.testQuestions.length)
 })
 
 </script>
