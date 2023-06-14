@@ -13,7 +13,7 @@ import {
 
 export const useBookCollectionsStore = defineStore("bookCols", () => {
 
-    const bookCollections = reactive<BookCollection[]>([])
+    const bookCollections = reactive<Array<BookCollection>>([])
     const currentBookCollection = reactive<BookCollection>({
         id: "",
         title: "",
@@ -28,32 +28,43 @@ export const useBookCollectionsStore = defineStore("bookCols", () => {
         currentBookCollection.user_id = col.user_id
     }
 
-    const createBookCollection = (col_title: string, user_id: string | undefined) => {
-        addDoc(bookCollectionsRef, {
-            title: col_title,
-            books: Array<string>(),
+    const createBookCollection = async (col: BookCollection) => {
+        const { title, books, user_id } = col
+        
+        const newCollectionRef = await addDoc(bookCollectionsRef, {
+            title: title,
+            books: books,
             user_id: user_id
         })
+
+        setCurrentBookCollection(
+            {
+                id: newCollectionRef.id,
+                title: title,
+                books: books,
+                user_id: user_id
+            }
+        )
     }
 
-    const updateBookCollectionTitle = (newTitle: string) => {
-        updateDoc(doc(db, "book_collections", currentBookCollection.id), {
+    const updateBookCollectionTitle = async (id: string, newTitle: string) => {
+        await updateDoc(doc(db, "book_collections", id), {
             title: newTitle 
         })
     }
 
-    const removeBookCollection = () => { 
-        deleteDoc(doc(db, "book_collections", currentBookCollection.id))
+    const removeBookCollection = async (id: string) => { 
+        await deleteDoc(doc(db, "book_collections", id))
     }
 
-    const addBook = (bookID: string) => { 
-        updateDoc(doc(db, "book_collections", currentBookCollection.id), {
+    const addBook = async (collectionID: string, bookID: string) => { 
+        await updateDoc(doc(db, "book_collections", collectionID), {
             books: arrayUnion(bookID) 
         })
     }
     
-    const removeBook = (bookID: string) => {
-        updateDoc(doc(db, "book_collections", currentBookCollection.id), {
+    const removeBook = async (collectionID: string, bookID: string) => {
+        await updateDoc(doc(db, "book_collections", collectionID), {
             books: arrayRemove(bookID) 
         })
     }
@@ -61,7 +72,8 @@ export const useBookCollectionsStore = defineStore("bookCols", () => {
 
     return {
         bookCollections,
-        currentBookCollection, 
+        currentBookCollection,
+         
         setCurrentBookCollection,
         createBookCollection,
         updateBookCollectionTitle,
