@@ -24,6 +24,8 @@ import { useAuthStore } from '@/stores/auth'
 import { onMounted, computed, reactive, ref} from 'vue'
 
 const deleteTest = async (testId: string) => {
+    await bookTestsStore.getAllQuestionsByTestID(testId)
+    await bookTestsStore.getAllAnswers()
     await bookTestsStore.deleteTestCompletely(testId)
     await bookTestsStore.getAllTests(authStore.user.id)
 }
@@ -31,19 +33,8 @@ const deleteTest = async (testId: string) => {
 const bookTestsStore = useBookTestsStore()
 const authStore = useAuthStore()
 
-bookTestsStore.tests.forEach(async test => {
-    await bookTestsStore.getAllQuestionsByTestID(test.id)
-})
-
-console.log('tests', bookTestsStore.tests)
-console.log('questions', bookTestsStore.testQuestions)
-console.log('answers', bookTestsStore.testAnswers)
-
 onMounted(async () => {
     await bookTestsStore.getAllTests(authStore.user.id)
-    bookTestsStore.tests.forEach(async test => {
-        await bookTestsStore.getAllQuestionsByTestID(test.id)})
-        await bookTestsStore.getAllAnswers()
 })
 
 

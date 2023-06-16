@@ -1,4 +1,4 @@
-<!-- reseni - answers aby se ukladaly, ID ke questions a answers a vybirani book_id, pri upravit test ulozeni nakonci oddelat pojmenovani testu, nakonec uprava -->
+<!-- reseni -  vybirani book_id, nakonec uprava -->
 <template>
     <Header>
         <v-row>
@@ -18,17 +18,18 @@
     <main>
         <v-row>
         <v-col cols="12" sm="7" class="mt-7">
-        <h1 class="testoveOtazkyHeaderMargin">Vlatní testové otázky</h1>
+        <h1 class="testoveOtazkyHeaderMargin"> {{ testName === undefined ? 'Vlastní testové otázky' : testName }}</h1>
         <div v-for="(question, index) in bookTestsStore.testQuestions" :key="question.id" class="mt-4 ml-16">
             <div :id="question.id">
             <v-row>
-                <v-col cols="10">
+                <v-col cols="9">
                     <h3>{{index + 1}}. {{ question.text }}</h3>
                 </v-col>
                 <v-col cols="2">
                     <v-btn color="primary" @click="deleteQuestion(question.id)">Smazat</v-btn>
                 </v-col>
             </v-row>
+            <!-- :v-model="bookTestsStore.testAnswers.filter(answer => answer.is_correct && answer.question_id === question.id)"  -->
             <v-radio-group 
                 v-model="selectedAnswers[question.id]" 
                 @mouseenter="getBookOnHover(question.book_id)"
@@ -37,58 +38,63 @@
                 <v-radio
                 v-for="answer in bookTestsStore.testAnswers.filter(answer => answer.question_id === question.id)"
                 :key="answer.id"
-                :value="answer.id + ': ' + answer.is_correct"
-                color="primary"
-                class="ml-3"
-                :disabled="state.answersSend"
-                >
-                <template v-slot:label>
-                    <div v-if="state.answersSend" strong :class="answer.is_correct ? 'text-success' : 'text-error'"> {{ answer.text }}</div>
-                    <div v-else> {{ answer.text }}</div>
-                </template> 
+                :value="answer.id"
+                
+                color="primary">
+                    <template v-slot:label >
+                        <div class="ml-3" >{{ answer.text }} </div>
+                    </template>
+                    <v-icon icon="mdi-close" color="#002166" @click="deleteAnswer(answer.id)"></v-icon>
             </v-radio>
             </v-radio-group>
             </div>
         </div>
 
-        <div v-for="question in newQuestions">
-            <h3>{{ question.text }} {{ question.id }}</h3>
-            <ul>
-                <li v-for="answer in templateNewAnswers.filter(a => a.question_id === question.id)" :color="answer.is_correct === true ? 'green' : 'red'">
-                    {{ answer.text }}
-                    {{  answer.question_id }}
-                </li>
-            </ul>
-        </div>
 
-        <v-btn v-if="!showQuestionInput" @click="showQuestionInput=true">
-            <v-icon icon="mdi-plus" />
-        </v-btn>
-        <div id="newQuestion">
-            <v-text-field label="Nová otázka" v-model="newQuestion.text" variant="underlined"></v-text-field>
-            <v-radio-group >
+        <div id="newQuestion" class="ml-14 mt-4">
+            <v-text-field class="mr-10" label="Nová otázka" 
+            v-model="newQuestion.text" 
+            variant="underlined"
+            :rules= "[required]">
+            </v-text-field>
+            <v-radio-group 
+                v-model="correctAnswer">
                 <v-radio v-for="answer in newAnswers"
-                :value="answer.id + ': ' + answer.is_correct"
+                :value="answer.id.toString()"
                 :label = answer.text
-                color="primary">
-                </v-radio>
-                <v-radio  v-if="showQuestionInput"  
                 color="primary"
-                :value="newAnswer.is_correct">
-                    <template v-slot:label>
-                        <v-text-field  label="Nová odpověď" v-model="newAnswer.text" variant="underlined"></v-text-field>
+                class="pr-3">
+                    <template v-slot:label >
+                        <div class="ml-3" >{{ answer.text }}</div>
                     </template>
-                    
+                    <v-icon icon="mdi-close" color="#002166" 
+                    @click="newAnswers.splice(newAnswers.findIndex(a => a.id === answer.id), 1)"></v-icon>
                 </v-radio>
-                <v-btn v-if="showQuestionInput" @click="saveAnswer">Uložit odpověď</v-btn>
+                <v-row>
+                <v-col cols="9">
+                    <v-radio  v-if="showQuestionInput"  
+                    color="primary"
+                    :value="newAnswer.is_correct"
+                    class="ml-3">
+                        <template v-slot:label >
+                            <v-text-field  label="Nová odpověď" v-model="newAnswer.text" variant="underlined"></v-text-field>
+                        </template>
+                        
+                    </v-radio>
+                    <v-icon icon="mdi-plus" class="clickabeIcon mt-3" v-if="!showQuestionInput" @click="showQuestionInput=true"/>
+                </v-col>
+                <v-col cols="2">
+                    <v-btn v-if="showQuestionInput" 
+                        style=" color: #E4573D;" :disabled="newAnswer.text.length ===0" @click="saveAnswer">Uložit</v-btn>
+                </v-col>
+                </v-row>
             </v-radio-group>
-            <v-btn color="primary" @click="saveQuestion">Uložit otázku</v-btn>
+            <v-btn color="primary" class="mt-5 mb-10" :disabled="newQuestion.text.length ===0" @click="saveQuestion">Uložit otázku</v-btn>
         </div>
 
         <v-btn color="primary" class="ml-16 mt-3" @click="openDialog">Uložit test
-            <v-dialog v-if="props.testId === 'new'"
+            <v-dialog
                 v-model="dialog.saveDialog"
-                @close="state.answersSend = true"
                 activator="parent"
                 transition="dialog-bottom-transition"
                 width="300px">
@@ -107,10 +113,11 @@
                 </v-card>
             </v-dialog>
         </v-btn>
+
         <v-btn color="primary" class="ml-16 mt-3">Smazat test
             <v-dialog
                 v-model="dialog.deleteDialog"
-                @close="state.answersSend = true"
+
                 activator="parent"
                 transition="dialog-bottom-transition"
                 width="auto">
@@ -124,8 +131,8 @@
                 </v-card>
             </v-dialog>
         </v-btn>
-
         </v-col>
+
         <v-divider vertical class="mt-7 mr-5"></v-divider>
         <v-col cols="12" sm="3">
             <div id="testStatistics" class="fixedPosition mt-10">
@@ -147,6 +154,7 @@
             </div>
         </v-col>
         </v-row>
+
     </main>
 </template>
 
@@ -161,37 +169,39 @@ import { BookTestAnswer}  from "@/types/index";
 import { BookTestQuestion } from "@/types/index";
 import { BookTest } from "@/types/index";
 import { db } from "@/main"
-import {
-    getDocs,
-    query,
-    where,
-    collection,
-    doc,
-    addDoc,
-    writeBatch,
-    deleteDoc,
-    updateDoc,
-} from '@firebase/firestore'
+import { collection,doc } from '@firebase/firestore'
 import router from '@/router/index'
 
-const newTestRef = doc(collection(db, "book_tests"))
-const newQuestionRef = doc(collection(db, "test_questions"))
+const bookTestsStore = useBookTestsStore()
+const authStore = useAuthStore()
+const booksStore = useBooksStore()
 
-const props = defineProps<{testId: string}>()
+const required = (v: string) => {!!v || 'Toto pole je povinné'
+}
+
+const newTestRef = doc(collection(db, "book_tests"))
+let newQuestionRef = doc(collection(db, "test_questions"))
+
+const questionToRef: Array<any> = []
+
+const props = defineProps<{
+    testId: string
+}>()
 
 const showQuestionInput = ref(false)
 
-const testName = ref<string | undefined>(undefined)
+const testName = ref<string | undefined>(bookTestsStore.tests.find(test => test.id === props.testId)?.name)
 
 const newAnswers = reactive<BookTestAnswer[]>([])
-let templateNewAnswers = reactive<BookTestAnswer[]>([])
+const selectedAnswers = ref<Record<string, string>>({});
+const correctAnswer = ref<string>('')
+const newQuestions = Array<BookTestQuestion>()
 
-const arrayOfNewAnswers:Array<Array<BookTestAnswer>> = []
+const hoveredBook = ref<BookInterface | null>(null)
 
 const newQuestion = reactive({
     id: newQuestionRef.id,
     text: '',
-    // test_id: props.testId === 'new' ? newQuestionRef.id : props.testId,
     book_id: '',
     selected_answer_id: "",
 })
@@ -200,10 +210,14 @@ const newAnswer = reactive({
     id: 0,
     text: "",
     is_correct: false,
-    question_id: -1,
+    question_id: newQuestionRef.id,
 })
 
-const newQuestions = Array<BookTestQuestion>()
+const dialog = reactive({
+    saveDialog: false,
+    deleteDialog: false,
+})
+
 
 const deleteTest = () =>{
     if(props.testId !== 'new') {
@@ -212,12 +226,33 @@ const deleteTest = () =>{
     router.push('/testy/vyber')
 }
 
+const deleteQuestion = async (questionId: string ) => {
+    await bookTestsStore.deleteQuestion(questionId)
+    const indexOfNewQuestion = newQuestions.findIndex(question => question.id === questionId)
+    if(indexOfNewQuestion !== -1){
+        newQuestions.splice(newQuestions.findIndex(question => question.id === questionId), 1)
+    }
+}
+
+const deleteAnswer = async (answerId: string) => {
+     await bookTestsStore.deleteAnswer(answerId)
+     await bookTestsStore.getAllAnswers()
+}
+
+
+const getSelectedAnswers = (questionId: string) => {
+    const rightAnswerFromStore = bookTestsStore.testAnswers.filter(answer => answer.question_id === questionId && answer.is_correct === true)
+    if(rightAnswerFromStore.length > 0){
+        selectedAnswers.value[questionId] = rightAnswerFromStore[0].id
+    }
+}
+
 const saveAnswer = () => {
     const newA: BookTestAnswer = {
         id: newAnswer.id.toString(),
         text: newAnswer.text,
         is_correct: newAnswer.is_correct,
-        question_id: '',
+        question_id: newAnswer.question_id,
     }
     newAnswer.id++
     newAnswer.text = ""
@@ -228,33 +263,37 @@ const saveAnswer = () => {
 
 const saveQuestion = async () => {
     const newQ: BookTestQuestion = {
-        id: newQuestion.id.toString(),
+        id: newQuestion.id,
         text: newQuestion.text,
         test_id: props.testId === 'new' ? '' : props.testId,
         book_id: 'pridat potom',
         selected_answer_id: newQuestion.selected_answer_id
     }
-    console.log('id', newQuestion.id)
-    console.log('id2', newTestRef.id)
-    console.log('id3', newQ.id)
+    questionToRef.push(newQuestionRef)
     newQuestions.push(newQ)
-    if(props.testId !== 'new') {
-        await bookTestsStore.addQuestionsToTest(newQuestions, newQuestionRef)
-        newQuestions.splice(0, newQuestions.length)
-        await bookTestsStore.getAllQuestionsByTestID(props.testId)
-    }
+
     newAnswers.forEach(a => a.question_id = newQuestion.id.toString())
-    // newQuestion.id++
+    const rightAnswer = newAnswers.find(answer => answer.id === correctAnswer.value)
+    if(rightAnswer){
+        rightAnswer.is_correct = true
+    }
+    bookTestsStore.addAnswersToTest(newAnswers)
+    getSelectedAnswers(newQuestion.id)
+
+    newQuestionRef = doc(collection(db, "test_questions"))
+    newQuestion.id = newQuestionRef.id
     newQuestion.text = ""
     newQuestion.selected_answer_id = ""
-    templateNewAnswers = newAnswers.slice();
-    console.log(templateNewAnswers)
+    newAnswer.text = ""
+    newAnswer.id = 0
+    required(newQuestion.text)
+
+    bookTestsStore.testQuestions.push(newQ)
     newAnswers.splice(0, newAnswers.length)
 }
 
 const saveTest = async () => {
     dialog.saveDialog = false
-    let newQ: BookTestQuestion[] = []
     const newBookTest: BookTest = {
         id: '',
         name: testName.value,
@@ -262,67 +301,36 @@ const saveTest = async () => {
         user_id: authStore.user.id,
         book_collection_id: 'collection_id'
     }
+    
+    await bookTestsStore.testAnswers.forEach(a => {
+        if(Object.values(selectedAnswers.value).includes(a.id)){
+            a.is_correct = true
+        } else {
+            a.is_correct = false
+        }
+    })
+
     if(props.testId === 'new') {
-        await bookTestsStore.createNewTest(newBookTest)
-        newQ = newQuestions.map(q => (q.test_id = bookTestsStore.tests[bookTestsStore.tests.length-1].id, q))
-        await bookTestsStore.getAllTests(authStore.user.id)
-        await bookTestsStore.addQuestionsToTest(newQ, newQuestionRef)
+        await bookTestsStore.createNewTest(newBookTest, newTestRef)
+        await bookTestsStore.addQuestionsToTest(newQuestions.map(q => (q.test_id = newTestRef.id, q)), questionToRef)
     } else {
-        await bookTestsStore.testQuestions.push(...newQuestions)
-        // bookTestsStore.testAnswers.push(...newAnswers)
-        await bookTestsStore.updateQuestionsAndAnswers()
+        await bookTestsStore.updateTestName(props.testId, testName.value)
+        await bookTestsStore.addQuestionsToTest(newQuestions.map(q => (q.test_id = props.testId, q)), questionToRef)
     }
+    console.log(bookTestsStore.testAnswers)
+    await bookTestsStore.updateQuestionsAndAnswers()
+
     router.push('/testy/vyber')
 }
 
-const dialog = reactive({
-    saveDialog: false,
-    deleteDialog: false,
-})
-
-const state = reactive({
-    answersSend: false
-})
-
-let questionsCorrect = -1
-
-const hoveredBook = ref<BookInterface | null>(null)
-
-const selectedAnswers = ref<Record<string, string>>({});
-
-
-const questionsAnswered = computed(() => Object.keys(selectedAnswers.value).length)
-//questionstotal nepujde i samo o sobe?
-const percentageOfQuestionsAnswered = computed(() => Math.round(Object.keys (selectedAnswers.value).length /
-bookTestsStore.testQuestions.length * 100))
 
 const openDialog = () => {
     if(props.testId !== 'new'){
         testName.value = bookTestsStore.tests.find(test => test.id === props.testId)?.name
-        saveTest()
     }
 }
 
-const deleteQuestion = async (bookId: string ) => {
-    await bookTestsStore.deleteQuestion(bookId)
-    await bookTestsStore.getAllQuestionsByTestID(props.testId)
-    // const q = document.getElementById(bookId)
-    // console.log(q)
-    // if(q) {
-    //     q.remove()}
-    // const index = bookTestsStore.testQuestions.findIndex(question => question.book_id === bookId)
-    // if(index !== -1){
-    //     bookTestsStore.testQuestions.splice(index, 1)
-    // }
-}
-
-
-const bookTestsStore = useBookTestsStore()
-const authStore = useAuthStore()
-const booksStore = useBooksStore()
-
 const questionsTotal = computed(() => bookTestsStore.testQuestions.length)
-console.log('questionsTotal', questionsTotal)
 
 
 const getBookOnHover = async (bookId: string) => {
@@ -338,15 +346,24 @@ const getBookOnHover = async (bookId: string) => {
 }
 
 onMounted(async () => {
+    await bookTestsStore.testQuestions.splice(0, bookTestsStore.testQuestions.length)
+    await bookTestsStore.testAnswers.splice(0, bookTestsStore.testAnswers.length)
     if(props.testId !== 'new'){
         await bookTestsStore.getAllTests(authStore.user.id)
         await bookTestsStore.getAllQuestionsByTestID(props.testId)
         await bookTestsStore.getAllAnswers()
+        bookTestsStore.testQuestions.forEach(question => {
+            const rightAns = bookTestsStore.testAnswers.find(answer => answer.question_id === question.id && answer.is_correct === true)
+            if(rightAns){
+                selectedAnswers.value[question.id] = rightAns.id
+            }
+        })
     }
 })
 
 onBeforeUnmount(async() => {
     await bookTestsStore.testQuestions.splice(0, bookTestsStore.testQuestions.length)
+    await bookTestsStore.testAnswers.splice(0, bookTestsStore.testAnswers.length)
 })
 
 </script>
@@ -379,5 +396,17 @@ div > p {
 .testoveOtazkyHeaderMargin {
     margin-left: 82px;
 }
+
+.clickabeIcon {
+    color: grey;
+    transition: transform 0.3s;
+}
+.clickabeIcon:hover{
+    cursor: pointer;
+    color: #E4573D;
+    transform: scale(1.2); 
+    transition: transform 0.3s;
+}
+
 
 </style>

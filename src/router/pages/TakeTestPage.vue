@@ -18,7 +18,7 @@
     <main>
         <v-row>
         <v-col cols="12" sm="6" class="mt-7">
-        <h1 class="testoveOtazkyHeaderMargin">Testové otázky</h1>
+        <h1 class="testoveOtazkyHeaderMargin">{{ testName === undefined ? 'Testové otázky' : testName }}</h1>
         <div v-for="(question, index) in bookTestsStore.testQuestions" :key="question.id" class="mt-4 ml-16">
             <h3>{{index + 1}}. {{ question.text }}</h3>
             <v-radio-group 
@@ -90,7 +90,7 @@
                         <p class="mt-0">{{ questionsAnswered }}/{{ questionsTotal }}</p>
                     </v-col>
                     <v-col cols="2">
-                        <p class="mt-0">{{ percentageOfQuestionsAnswered }}%</p>
+                        <p class="mt-0">{{ isNaN(percentageOfQuestionsAnswered) === true ? 0 : percentageOfQuestionsAnswered }}%</p>
                     </v-col>
                 </v-row>
                 <v-row v-if="state.answersSend">
@@ -122,11 +122,15 @@ import { useBooksStore } from '@/stores/books'
 import { onMounted, onBeforeUnmount , computed, reactive, ref, defineProps} from 'vue'
 import { Book as BookInterface } from "@/model/Book";
 import router from '@/router/index'
-import { before } from "node:test";
 
-const index=0
+
+const bookTestsStore = useBookTestsStore()
+const authStore = useAuthStore()
+const booksStore = useBooksStore()
 
 const props = defineProps<{bookTestId: string}>()
+
+const testName = ref<string | undefined>(bookTestsStore.tests.find(test => test.id === props.bookTestId)?.name)
 
 const dialog = reactive({
     value: false
@@ -151,17 +155,13 @@ const questionsTotal = computed(() => bookTestsStore.testQuestions.length)
 const percentageOfQuestionsAnswered = computed(() => Math.round(Object.keys (selectedAnswers.value).length /
 bookTestsStore.testQuestions.length * 100))
 
+console.log(percentageOfQuestionsAnswered.value)
+
 const getSelectedValues = () => {
     console.log(Object.keys(selectedAnswers.value).length)
     console.log(selectedAnswers.value)
     questionsCorrect = Object.values(selectedAnswers.value).filter(answer => answer.includes('true')).length
 }
-
-
-const bookTestsStore = useBookTestsStore()
-const authStore = useAuthStore()
-const booksStore = useBooksStore()
-
 
 const getBookOnHover = async (bookId: string) => {
     if(bookId !== ''){
@@ -189,6 +189,7 @@ onMounted(async () => {
 
 onBeforeUnmount(async() => {
     await bookTestsStore.testQuestions.splice(0, bookTestsStore.testQuestions.length)
+    await bookTestsStore.testAnswers.splice(0, bookTestsStore.testAnswers.length)
 })
 
 </script>
