@@ -15,13 +15,11 @@ export interface BookCollection {
 
 // Notes
 
-export enum WriteOperation {
-    Create, Update, Delete
-}
+export type NoteField = { name: string, value: string }
 
 export interface BookNote {
     id: string,
-    fields: Array<{ name: string, value: string }>,
+    fields: Array<NoteField>,
     book_id: string,
     user_id: string | undefined
 }

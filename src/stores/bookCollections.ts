@@ -8,7 +8,10 @@ import {
     updateDoc,
     deleteDoc, 
     arrayRemove, 
-    arrayUnion
+    arrayUnion,
+    query,
+    where,
+    getDocs
 } from '@firebase/firestore'
 
 export const useBookCollectionsStore = defineStore("bookCols", () => {
@@ -26,6 +29,29 @@ export const useBookCollectionsStore = defineStore("bookCols", () => {
         currentBookCollection.title = col.title
         currentBookCollection.books = col.books
         currentBookCollection.user_id = col.user_id
+    }
+
+    const getBookCollections = async (user_id: string) => {
+        const q = query(bookCollectionsRef, where("user_id", "==", user_id))
+        const snapshot = await getDocs(q)
+
+        if (snapshot.docs.length > 0) {
+
+            bookCollections.length = 0
+
+            snapshot.docs.forEach((doc) => {
+                const col: BookCollection = {
+                    id: doc.id,
+                    title: doc.data().title,
+                    books: doc.data().books,
+                    user_id: user_id
+                }
+
+                bookCollections.push(col)
+            })
+
+        }
+        
     }
 
     const createBookCollection = async (col: BookCollection) => {
@@ -58,12 +84,19 @@ export const useBookCollectionsStore = defineStore("bookCols", () => {
     }
 
     const addBook = async (collectionID: string, bookID: string) => { 
+        const colIndex = bookCollections.findIndex((col) => col.id === collectionID)
+        bookCollections[colIndex].books.push(bookID)
+        
         await updateDoc(doc(db, "book_collections", collectionID), {
             books: arrayUnion(bookID) 
         })
     }
     
     const removeBook = async (collectionID: string, bookID: string) => {
+        const colIndex = bookCollections.findIndex((col) => col.id === collectionID)
+        const bookIndex = bookCollections[colIndex].books.findIndex((id) => id === bookID)
+        bookCollections[colIndex].books.splice(bookIndex, 1)
+
         await updateDoc(doc(db, "book_collections", collectionID), {
             books: arrayRemove(bookID) 
         })
@@ -74,6 +107,7 @@ export const useBookCollectionsStore = defineStore("bookCols", () => {
         bookCollections,
         currentBookCollection,
          
+        getBookCollections,
         setCurrentBookCollection,
         createBookCollection,
         updateBookCollectionTitle,
