@@ -67,7 +67,7 @@
                 </v-card>
             </v-dialog>
         </v-btn>
-        <v-btn v-else color="primary" @click="router.push('/testy/vyber')">
+        <v-btn v-else color="primary" class="ml-16" @click="router.push('/testy/vyber')">
             Zpět na výběr testů
         </v-btn>
         </v-col>

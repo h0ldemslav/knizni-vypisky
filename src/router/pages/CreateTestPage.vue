@@ -22,10 +22,13 @@
         <div v-for="(question, index) in bookTestsStore.testQuestions" :key="question.id" class="mt-4 ml-16">
             <div :id="question.id">
             <v-row>
-                <v-col cols="9">
-                    <h3>{{index + 1}}. {{ question.text }}</h3>
+                <v-col cols="8">
+                    <h3 v-if="!editQuestionState[question.id]">{{index + 1}}. {{ question.text }}</h3>
+                    <h3 v-else><v-text-field v-model="question.text" variant="underlined"></v-text-field></h3>
                 </v-col>
-                <v-col cols="2">
+                <v-col cols="4">
+                    <v-btn v-if="!editQuestionState[question.id]" color="primary" @click="editQuestion(question.id)" class="mr-1">Upravit</v-btn>
+                    <v-btn v-else color="primary" @click="saveEditedQuestion(question.id)" class="mr-1">Uložit</v-btn>
                     <v-btn color="primary" @click="deleteQuestion(question.id)">Smazat</v-btn>
                 </v-col>
             </v-row>
@@ -41,8 +44,11 @@
                 :value="answer.id"
                 
                 color="primary">
-                    <template v-slot:label >
+                    <template v-if="!editQuestionState[question.id]" v-slot:label >
                         <div class="ml-3" >{{ answer.text }} </div>
+                    </template>
+                    <template v-else v-slot:label >
+                        <v-text-field class="textIn ml-3 mr-16" v-model="answer.text" variant="underlined"></v-text-field>
                     </template>
                     <v-icon icon="mdi-close" color="#002166" @click="deleteAnswer(answer.id)"></v-icon>
             </v-radio>
@@ -55,7 +61,7 @@
             <v-text-field class="mr-10" label="Nová otázka" 
             v-model="newQuestion.text" 
             variant="underlined"
-            :rules= "[required]">
+            >
             </v-text-field>
             <v-radio-group 
                 v-model="correctAnswer">
@@ -176,9 +182,6 @@ const bookTestsStore = useBookTestsStore()
 const authStore = useAuthStore()
 const booksStore = useBooksStore()
 
-const required = (v: string) => {!!v || 'Toto pole je povinné'
-}
-
 const newTestRef = doc(collection(db, "book_tests"))
 let newQuestionRef = doc(collection(db, "test_questions"))
 
@@ -189,6 +192,7 @@ const props = defineProps<{
 }>()
 
 const showQuestionInput = ref(false)
+const editQuestionState = ref<Record<string, boolean>>({})
 
 const testName = ref<string | undefined>(bookTestsStore.tests.find(test => test.id === props.testId)?.name)
 
@@ -232,6 +236,14 @@ const deleteQuestion = async (questionId: string ) => {
     if(indexOfNewQuestion !== -1){
         newQuestions.splice(newQuestions.findIndex(question => question.id === questionId), 1)
     }
+}
+
+const editQuestion = (questionId: string) => {
+    editQuestionState.value[questionId] = true
+}
+
+const saveEditedQuestion = (questionId: string) => {
+    editQuestionState.value[questionId] = false
 }
 
 const deleteAnswer = async (answerId: string) => {
@@ -286,7 +298,6 @@ const saveQuestion = async () => {
     newQuestion.selected_answer_id = ""
     newAnswer.text = ""
     newAnswer.id = 0
-    required(newQuestion.text)
 
     bookTestsStore.testQuestions.push(newQ)
     newAnswers.splice(0, newAnswers.length)
@@ -395,6 +406,10 @@ div > p {
 
 .testoveOtazkyHeaderMargin {
     margin-left: 82px;
+}
+
+.textIn {
+    padding-top: 10px;
 }
 
 .clickabeIcon {
