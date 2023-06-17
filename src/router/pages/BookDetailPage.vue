@@ -1,11 +1,12 @@
 <template>
-    <section v-if="book">
-
-        <section class="intro-section">
+    <section v-if="book" class="main-section">
+        <div class="book-image-wrapper">
             <img v-if="book.image" :src="book.image?.smallThumbnail" :alt="book.title"/>
             <img v-else src="https://cdn-icons-png.flaticon.com/512/207/207114.png" alt="Obrázek knihy nenalezen"/>
-            
-            <h3>{{ book.title }}</h3>
+        </div>
+
+        <section class="intro-section">
+            <h2>{{ book.title }}</h2>
             <p class="book-title"><strong>{{ getListOfAuthors() }}</strong></p>
 
             <div v-if="book.rating" class="rating-wrapper">
@@ -14,7 +15,7 @@
             </div>
 
             <div class="download-links">
-                <a v-if="book.pdfLink" :href="book.pdfLink">
+                <a v-if="book.pdfLink" :href="book.pdfLink" class="mr-4">
                     <img class="small-svg-icon" src="../../assets/pdf_link_icon.svg" alt="Odkaz na PDF soubor">
                 </a>
                 <a v-if="book.epubLink" :href="book.epubLink">
@@ -23,74 +24,125 @@
             </div>
         </section>
 
-        <section class="desc-section">
-            <h3>Informace o knize</h3>
-            <ul>
-                <li><strong>{{ book.isbn[0].type }}</strong> <span class="spacer">{{ book.isbn[0].value }}</span></li>
-                <li><strong>{{ book.isbn[1].type }}</strong> <span class="spacer">{{ book.isbn[1].value }}</span></li>
-                <li><strong>Vydavatel</strong> {{ book.publisher }}</li>
-                <li><strong>Vydáno</strong> <span class="spacer"></span>{{ book.publishedDate ? book.publishedDate : "-" }}</li>
-                <li><strong>Počet stran</strong> {{ book.pageCount ? book.pageCount : "-" }}</li>
-                <li><strong>Jazyk</strong> {{ getFullLanguageName(book.language) }}</li>
-            </ul>
-        </section>
+        <div class="section-wrapper">
+            <section class="desc-section">
+                <h3>Informace o knize</h3>
+                <ul>
+                    <li><strong>{{ book.isbn[0].type }}</strong>{{ book.isbn[0].value }}</li>
+                    <li><strong>{{ book.isbn[1].type }}</strong>{{ book.isbn[1].value }}</li>
+                    <li><strong>Vydavatel</strong>{{ book.publisher ? book.publisher : "Neznamý vydavatel"}}</li>
+                    <li><strong>Vydáno</strong>{{ book.publishedDate }}</li>
+                    <li><strong>Počet stran</strong>{{ book.pageCount ? book.pageCount : "-" }}</li>
+                    <li><strong>Jazyk</strong>{{ getFullLanguageName(book.language) }}</li>
+                </ul>
 
-        <section class="collections-section" v-if="authStore.isUserLoggedIn">
-            <h2>Kolekce</h2>
+                <section v-if="authStore.isUserLoggedIn">
+                    <h3>Kolekce</h3>
 
-            <v-select
-                clearable
-                v-model="bookCollectionsModel"
-                :items="bookCollectionsStore.bookCollections"
-                item-title="title"
-                item-value="id"
-                label="Kolekce"
-                return-object
-                multiple
-                @update:modelValue="isSelectInputChanged = true"
-            ></v-select>
+                    <v-select
+                        variant="solo"
+                        v-model="bookCollectionsModel"
+                        :items="bookCollectionsStore.bookCollections"
+                        item-title="title"
+                        item-value="id"
+                        label="Vybrat"
+                        return-object
+                        multiple
+                        @update:modelValue="isSelectInputChanged = true"
+                        class="collections-select"
+                    ></v-select>
 
-            <v-btn 
-                v-if="isSelectInputChanged"
-                @click="updateUserBookCollections"
-                prepend-icon="mdi-content-save" 
-                color="green">
-                <template v-slot:prepend >
-                    <v-icon color="white" class="pb-1"></v-icon>
-                </template>
-                Uložit
-            </v-btn>
-        </section>
+                    <div class="action-buttons">
+                        <v-btn v-if="isSelectInputChanged" @click="cancelSelectField" variant="text" color="red" class="font-weight-bold">Zrušit</v-btn>
 
-        <section class="notes-section" v-if="authStore.isUserLoggedIn">
-            <h2>Mé poznámky</h2>
+                        <v-btn 
+                            v-if="isSelectInputChanged"
+                            @click="updateUserBookCollections"
+                            prepend-icon="mdi-content-save" 
+                            color="green"
+                            class="ml-2"
+                        >
+                            <template v-slot:prepend>
+                                <v-icon color="white" class="pb-1"></v-icon>
+                            </template>
+                            Uložit
+                        </v-btn>
+                    </div>
+                </section>
 
-            <form action="#" @submit.prevent="updateBookNoteFields">
-                <div v-for="(field, index) in bookNotesStore.currentBookNote.fields">
-                    <label><strong>{{ field.name }}</strong></label>
-                    <input type="text" v-model="field.value" class="basic-textfield" :readonly="!isAddingFields">
-                    <v-icon icon="mdi-delete" v-if="isAddingFields" @click="removeField(index)"></v-icon>
-                </div>
+            </section>
 
-                <div v-for="field in fields">
-                    <input type="text" v-model="field.name" placeholder="Počet stran" class="basic-textfield">
-                    <input type="text" v-model="field.value" placeholder="210" class="basic-textfield">
-                </div>
-                
-                <div v-if="isAddingFields">
-                    <v-btn @click="addNewField" icon="mdi-plus" color="green">                
-                        <template v-slot:prepend>
-                            <v-icon color="white" class="pb-1"></v-icon>
-                        </template>
-                    </v-btn>
-                </div>
+            <section class="notes-section" v-if="authStore.isUserLoggedIn">
+                <h3>Mé poznámky</h3>
 
-                
-                <button v-if="!isAddingFields" @click="isAddingFields = true">Editovat</button>
-                <button v-if="isAddingFields" @click="clearNewFields">Zrušit  </button>
-                <button v-if="isAddingFields" type="submit">Uložit</button>
-            </form>
-        </section>
+                <form action="#" @submit.prevent="updateBookNoteFields">
+                    <div v-for="(field, index) in bookNotesStore.currentBookNote.fields" class="fields-wrapper">
+                        <label v-if="!isAddingFields" class="mr-4"><strong>{{ field.name }}</strong></label>
+                        <input v-if="isAddingFields" type="text" v-model="field.name" class="basic-textfield mr-4 pa-1">
+                        <v-icon 
+                            icon="mdi-delete" 
+                            v-if="isAddingFields" 
+                            @click="removeField(index, bookNotesStore.currentBookNote.fields)" 
+                            class="pt-2"
+                        >
+                        </v-icon>
+                        <textarea 
+                            v-model="field.value"
+                            rows="2"
+                            :maxlength="textAreaMaximumChars"
+                            :readonly="!isAddingFields"
+                            class="note-textarea"
+                        >
+                        </textarea>
+                    </div>
+
+                    <div v-for="(field, index) in fields" class="fields-wrapper">
+                        <input type="text" v-model="field.name" placeholder="Název" class="basic-textfield mr-4 pa-1">
+                        <v-icon icon="mdi-delete" v-if="isAddingFields" @click="removeField(index, fields)" class="pt-2"></v-icon>
+                        <textarea 
+                            placeholder="Text"
+                            v-model="field.value"
+                            rows="2"
+                            :maxlength="textAreaMaximumChars"
+                            :readonly="!isAddingFields"
+                            class="note-textarea"
+                        >
+                        </textarea>
+                    </div>
+                    
+                    <div v-if="isAddingFields" class="fab-add-wrapper">
+                        <v-btn @click="addNewField" icon="mdi-plus" color="red" rounded="lg" size="40">                
+                            <template v-slot:prepend>
+                                <v-icon color="white"></v-icon>
+                            </template>
+                        </v-btn>
+                    </div>
+
+                    <div class="action-buttons" :style="bookNotesStore.currentBookNote.fields.length !== 0 ? 'justify-content: flex-end;' : 'justify-content: flex-start;'">
+                        <v-btn v-if="!isAddingFields" @click="isAddingFields = true">
+                            {{ bookNotesStore.currentBookNote.fields.length > 0 ? 'Editovat' : 'Přidat' }}
+                        </v-btn>
+
+                        <v-btn v-if="isAddingFields" @click="cancelForm" variant="text" color="red" class="font-weight-bold">Zrušit</v-btn>
+
+                        <v-btn 
+                            v-if="isAddingFields" 
+                            prepend-icon="mdi-content-save" 
+                            color="green"
+                            type="submit"
+                            class="ml-2"
+                        >
+                            <template v-slot:prepend>
+                                <v-icon color="white" class="pb-1"></v-icon>
+                            </template>
+                            Uložit
+                        </v-btn>
+                    </div>
+                </form>
+
+            </section>
+
+        </div>
 
     </section>
 
@@ -118,17 +170,43 @@
     const isSelectInputChanged = ref<boolean>(false)
 
     const fields = reactive<Array<NoteField>>([])
+    const currentBookNoteFieldsCopy: Array<NoteField> = []
     const isAddingFields = ref(false)
+    const textAreaMaximumChars = 512
 
     const addNewField = () => fields.push({ name: "", value: ""})
     
-    const clearNewFields = () => {
+    const cancelForm = () => {
         fields.length = 0
+
+        if (currentBookNoteFieldsCopy.length > 0) {
+            bookNotesStore.currentBookNote.fields = [...currentBookNoteFieldsCopy]
+            updateCopyFields()
+        }
+
         isAddingFields.value = false
     }
 
-    const removeField = (index: number) => {
-        bookNotesStore.currentBookNote.fields.splice(index, 1)
+    const removeField = (index: number, fields: Array<NoteField>) => {
+        fields.splice(index, 1)
+    }
+
+    const updateCopyFields = () => {
+        currentBookNoteFieldsCopy.length = 0
+
+        bookNotesStore.currentBookNote.fields.forEach((field) => {
+                currentBookNoteFieldsCopy.push({ name: field.name, value: field.value })
+        })
+    }
+
+    const cancelSelectField = () => {
+        bookCollectionsModel.value.length = 0
+        bookCollectionsModel.value.push(...bookCollectionsStore.bookCollections.filter(
+                        (col) => col.books.includes(book.value.id )
+                    )
+        )
+
+        isSelectInputChanged.value = false
     }
 
     const getListOfAuthors = (): string => {
@@ -234,9 +312,14 @@
     }
 
     const updateBookNoteFields = async () => {
-        bookNotesStore.currentBookNote.fields.push(...fields.filter(
-            (field) => field.name.length > 0 && field.value.length > 0)
+        bookNotesStore.currentBookNote.fields.push(...fields.map(
+            (field) => {
+                const name = field.name ? field.name : "Poznámka"
+                return { name: name, value: field.value }
+            })
         )
+        updateCopyFields()
+
         fields.length = 0
         isAddingFields.value = false
 
@@ -258,6 +341,8 @@
                 )
 
                 await bookNotesStore.getBookNote(props.id, authStore.user.id)
+
+                updateCopyFields()
             }
 
         } else {
@@ -268,17 +353,44 @@
 
 </script>
 
-<style scoped>
-    /* Not yet finished */
-    
-    .intro-section,
-    .desc-section,
-    .notes-section,
-    .collections-section {
-        padding: 1em;
+<style scoped>  
+    h2 {
+        font-size: 1.17em;
     }
+    
+    h3 {
+        margin: 0.5em 0;
+    }
+
+    label {
+        vertical-align: top;
+        line-height: 2;
+        margin-bottom: 1em;
+    }
+
+    input {
+        vertical-align: top;
+        margin-bottom: 1em;
+    }
+
+    ul {
+        margin-bottom: 1em;
+    }
+
+    .desc-section,
+    .notes-section {
+        margin-bottom: 1em;
+    }
+
+    .section-wrapper {
+        display: flex;
+        flex-direction: column;
+        padding: 0 1em 1em 1em;
+    }
+
     .intro-section {
         background-color: #F4F3EC;
+        padding: 1em;
     }
 
     .intro-section::after {
@@ -287,14 +399,16 @@
         clear: both;
     }
 
-    .intro-section > img {
+    .book-image-wrapper {
         float: left;
+        padding: 1em;
         margin-right: 1em;
-        object-fit: contain;
     }
 
-    .desc-section {
-        clear: both;
+    .book-image-wrapper img {
+        width: 100%;
+        height: 200px;
+        object-fit: contain;
     }
 
     .img-star {
@@ -325,29 +439,130 @@
         list-style-type: none;
     }
 
-    ul li strong {
+    .desc-section ul li { 
+        overflow-wrap: break-word;
+    }
+    
+    .desc-section ul li strong {
         display: inline-block;
         width: 100px;
-        margin-left: 0.5em;
         margin-right: 3em;
     }
 
-    input {
-        margin-right: 2em;
-        padding: 0.3em;
+    .basic-textfield, 
+    .note-textarea, 
+    .fab-add-wrapper, 
+    .action-buttons,
+    .collections-select {
+        width: 80%; 
     }
+
     .basic-textfield {
         background: #FFFFFF;
-        width: 10em;
         box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
         border-radius: 4px;
     }
 
-    label {
-        margin-right: 2em;
+    .note-textarea {
+        display: block;
+        padding-top: 3.75px;
+        padding-left: 0.5em;
+        background: #FFFFFF;
+        box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+        border-radius: 4px;
     }
 
-    .notes-section form div {
-        margin-bottom: 1em;
+    .fields-wrapper {
+        margin-bottom: 2.5em;
+    }
+    
+    .fab-add-wrapper {
+        display: inline-block;
+        margin: 1em 0;
+    }
+
+    .action-buttons {
+        display: flex;
+    }
+
+    .desc-section .action-buttons {
+        justify-content: flex-end;
+    }
+
+    @media screen and (min-width: 500px) {
+        h2 {
+            font-size: 1.5em;
+        }
+        .basic-textfield {
+            width: 20.5em;
+        }
+        .note-textarea,
+        .collections-select,
+        .action-buttons {
+            width: 70%;
+        }
+
+        .book-image-wrapper {
+            margin-right: 3em;
+        }
+    }
+
+    @media screen and (min-width: 800px) {
+        .book-image-wrapper {
+            padding-left: 10em;
+        }
+
+        .desc-section h3:nth-of-type(2) {
+            margin-bottom: 1em;
+        }
+        .section-wrapper {
+            justify-content: space-between;
+            flex-direction: row;
+        }
+
+        .notes-section {
+            margin-left: 7em;
+            flex: 2;
+        }
+
+        .basic-textfield {
+            width: 14em;
+        }
+        
+        .note-textarea, 
+        .action-buttons {
+            width: 80%;
+        }
+
+        .collections-select {
+            width: 20.5em;
+        }
+
+        .desc-section .action-buttons {
+            width: 100%; 
+        }
+
+    }
+
+    @media screen and (min-width: 960px) {
+        .section-wrapper {
+            padding-left: 8em;
+        }
+
+        .basic-textfield {
+            width: 15em;
+        }
+
+        .note-textarea, 
+        .notes-section .action-buttons {
+            width: 80%;
+        }
+    }
+
+    @media screen and (min-width: 1150px) {
+        .note-textarea,
+        .notes-section .action-buttons {
+            width: 60%;
+        }
     }
 </style>  

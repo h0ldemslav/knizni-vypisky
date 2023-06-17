@@ -31,12 +31,13 @@ export const useBookNotesStore = defineStore("bookNts", () => {
             currentBookNote.user_id = snapshot.docs[0].data().user_id
         } else {
             const newNoteRef = await addDoc(bookNotesRef, {
-                fields: currentBookNote.fields,
+                fields: [],
                 book_id: book_id,
                 user_id: user_id
             })
 
             currentBookNote.id = newNoteRef.id
+            currentBookNote.fields = []
         }
     }
 
