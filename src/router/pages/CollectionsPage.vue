@@ -1,6 +1,6 @@
 <template>
     <Header>
-        <h1>CollectionsPage</h1>
+        <h1>Kolekce</h1>
     </Header>
     <main>
         <!-- TODO -->
@@ -42,3 +42,7 @@
         })
     })
 </script>
+
+<style>
+
+</style>
