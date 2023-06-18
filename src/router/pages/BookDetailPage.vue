@@ -76,38 +76,44 @@
                 <h3>Mé poznámky</h3>
 
                 <form action="#" @submit.prevent="updateBookNoteFields">
-                    <div v-for="(field, index) in bookNotesStore.currentBookNote.fields" class="fields-wrapper">
-                        <label v-if="!isAddingFields" class="mr-4"><strong>{{ field.name }}</strong></label>
-                        <input v-if="isAddingFields" type="text" v-model="field.name" class="basic-textfield mr-4 pa-1">
-                        <v-icon 
-                            icon="mdi-delete" 
-                            v-if="isAddingFields" 
-                            @click="removeField(index, bookNotesStore.currentBookNote.fields)" 
-                            class="pt-2"
-                        >
-                        </v-icon>
-                        <textarea 
-                            v-model="field.value"
-                            rows="2"
-                            :maxlength="textAreaMaximumChars"
-                            :readonly="!isAddingFields"
-                            class="note-textarea"
-                        >
-                        </textarea>
-                    </div>
+                    <div class="fields-overflow-wrapper">
 
-                    <div v-for="(field, index) in fields" class="fields-wrapper">
-                        <input type="text" v-model="field.name" placeholder="Název" class="basic-textfield mr-4 pa-1">
-                        <v-icon icon="mdi-delete" v-if="isAddingFields" @click="removeField(index, fields)" class="pt-2"></v-icon>
-                        <textarea 
-                            placeholder="Text"
-                            v-model="field.value"
-                            rows="2"
-                            :maxlength="textAreaMaximumChars"
-                            :readonly="!isAddingFields"
-                            class="note-textarea"
-                        >
-                        </textarea>
+                        <div v-for="(field, index) in bookNotesStore.currentBookNote.fields" class="fields-wrapper">
+                            <label v-if="!isAddingFields" class="mr-4"><strong>{{ field.name }}</strong></label>
+                            <input v-if="isAddingFields" type="text" v-model="field.name" class="basic-textfield mr-4 pa-1">
+                            <v-icon 
+                                icon="mdi-delete" 
+                                v-if="isAddingFields" 
+                                @click="removeField(index, bookNotesStore.currentBookNote.fields)" 
+                                class="pt-2"
+                            >
+                            </v-icon>
+                            <textarea 
+                                v-model="field.value"
+                                rows="3"
+                                :maxlength="textAreaMaximumChars"
+                                :readonly="!isAddingFields"
+                                class="note-textarea"
+                            >
+                            </textarea>
+                            <span v-if="isAddingFields" class="field-value-char-counter">{{ field.value.length }} / {{ textAreaMaximumChars }}</span>
+                        </div>
+
+                        <div v-for="(field, index) in fields" class="fields-wrapper">
+                            <input type="text" v-model="field.name" placeholder="Název" class="basic-textfield mr-4 pa-1">
+                            <v-icon icon="mdi-delete" v-if="isAddingFields" @click="removeField(index, fields)" class="pt-2"></v-icon>
+                            <textarea 
+                                placeholder="Text"
+                                v-model="field.value"
+                                rows="3"
+                                :maxlength="textAreaMaximumChars"
+                                :readonly="!isAddingFields"
+                                class="note-textarea"
+                            >
+                            </textarea>
+                            <span v-if="isAddingFields" class="field-value-char-counter">{{ field.value.length }} / {{ textAreaMaximumChars }}</span>
+                        </div>
+
                     </div>
                     
                     <div v-if="isAddingFields" class="fab-add-wrapper">
@@ -118,7 +124,7 @@
                         </v-btn>
                     </div>
 
-                    <div class="action-buttons" :style="bookNotesStore.currentBookNote.fields.length !== 0 ? 'justify-content: flex-end;' : 'justify-content: flex-start;'">
+                    <div class="action-buttons mt-4" :style="bookNotesStore.currentBookNote.fields.length !== 0 ? 'justify-content: flex-end;' : 'justify-content: flex-start;'">
                         <v-btn v-if="!isAddingFields" @click="isAddingFields = true">
                             {{ bookNotesStore.currentBookNote.fields.length > 0 ? 'Editovat' : 'Přidat' }}
                         </v-btn>
@@ -373,13 +379,15 @@
         margin-bottom: 1em;
     }
 
-    ul {
-        margin-bottom: 1em;
-    }
-
+    ul,
     .desc-section,
     .notes-section {
         margin-bottom: 1em;
+    }
+
+    .fields-overflow-wrapper {
+        height: 435px;
+        overflow-y: auto;
     }
 
     .section-wrapper {
@@ -472,6 +480,14 @@
         border-radius: 4px;
     }
 
+    .field-value-char-counter {
+        display: inline-block;
+        width: 4.5em;
+        margin-top: 0.5em;
+        margin-left: 58%;
+        text-align: right;
+    }
+
     .fields-wrapper {
         margin-bottom: 2.5em;
     }
@@ -493,9 +509,15 @@
         h2 {
             font-size: 1.5em;
         }
+
         .basic-textfield {
             width: 20.5em;
         }
+
+        .field-value-char-counter {
+            margin-left: 54%;
+        }
+
         .note-textarea,
         .collections-select,
         .action-buttons {
@@ -528,6 +550,10 @@
         .basic-textfield {
             width: 14em;
         }
+
+        .field-value-char-counter {
+            margin-left: 58%;
+        }
         
         .note-textarea, 
         .action-buttons {
@@ -541,7 +567,6 @@
         .desc-section .action-buttons {
             width: 100%; 
         }
-
     }
 
     @media screen and (min-width: 960px) {
@@ -560,6 +585,10 @@
     }
 
     @media screen and (min-width: 1150px) {
+        .field-value-char-counter {
+            margin-left: 46%;
+        }
+
         .note-textarea,
         .notes-section .action-buttons {
             width: 60%;
