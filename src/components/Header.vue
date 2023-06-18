@@ -1,7 +1,7 @@
 <template>
-    <header class="bg-secondary">
-        <slot></slot>
-    </header>
+  <header class="bg-secondary">
+    <slot></slot>
+  </header>
 </template>
 
 <script lang="ts" setup>
@@ -9,6 +9,12 @@
 
 <style scoped>
 header {
-    min-height: 35vh;
+  min-height: 35vh;
+}
+
+@media only screen and (max-width: 768px) {
+  :slotted(.header-content) {
+    width: 90vw;
+  }
 }
 </style>
