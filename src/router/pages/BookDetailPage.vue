@@ -76,7 +76,7 @@
                 <h3>Mé poznámky</h3>
 
                 <form action="#" @submit.prevent="updateBookNoteFields">
-                    <div class="fields-overflow-wrapper">
+                    <div :class="{ 'fields-overflow-wrapper': bookNotesStore.currentBookNote.fields.length > 2 || fields.length > 2 }">
 
                         <div v-for="(field, index) in bookNotesStore.currentBookNote.fields" class="fields-wrapper">
                             <label v-if="!isAddingFields" class="mr-4"><strong>{{ field.name }}</strong></label>

@@ -14,6 +14,7 @@
 
         <v-card-text>
           <v-text-field
+              id="title-textfield"
               variant="solo"
               label="Název kolekce"
               :rules="[requiredRule]"
