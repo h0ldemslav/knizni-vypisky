@@ -28,6 +28,14 @@ const routes: RouteRecordRaw[] = [
         }
     },
     {
+        path: "/kolekce/:id",
+        name: "collection_detail",
+        component: () => import("@/router/pages/CollectionDetailPage.vue"),
+        meta: {
+            requiresAuth: true
+        }
+    },
+    {
         path: "/testy",
         name: "tests",
         component: () => import("@/router/pages/TestsPage.vue"),
