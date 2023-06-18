@@ -17,9 +17,9 @@
     </Header>
     <main>
         <v-row>
-        <v-col cols="12" sm="6" class="mt-7">
+        <v-col cols="12" sm="6" class="mt-7 ">
         <h1 class="testoveOtazkyHeaderMargin">{{ testName === undefined ? 'Testové otázky' : testName }}</h1>
-        <div v-for="(question, index) in bookTestsStore.testQuestions" :key="question.id" class="mt-4 ml-16">
+        <div v-for="(question, index) in bookTestsStore.testQuestions" :key="question.id" class="mt-4 ml-sm-16 ml-9">
             <h3>{{index + 1}}. {{ question.text }}</h3>
             <v-radio-group 
                 v-model="selectedAnswers[question.id]" 
@@ -197,7 +197,7 @@ onBeforeUnmount(async() => {
 <style scoped>
 
 .leftTopMargin {
-    margin: 55px 0 0 110px;
+    margin: 55px 0 0 90px;
 
     @media screen and (max-width: 648px){
         margin: 30px 30px 0 20px;
@@ -216,11 +216,19 @@ div > p {
 .fixedPosition {
     position: -webkit-sticky;
     position: sticky;
-    top: 10%
+    top: 3%;
+
+    @media screen and (max-width: 648px){
+        display: none;
+    }
 }
 
 .testoveOtazkyHeaderMargin {
     margin-left: 82px;
+
+    @media screen and (max-width: 648px){
+        margin-left: 48px;
+    }
 }
 
 </style>

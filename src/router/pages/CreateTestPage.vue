@@ -5,59 +5,91 @@
             <v-col cols="12" sm="6">
                 <div class="leftTopMargin">
                     <h1>Vlastní testové otázky</h1>
+                <v-col cols="12" sm="8">
                     <p>Zde si můžeš vytvořit vlastní otázky k jednotlivým <br>knihám kolekcí!</p>
                     <p class="font-weight-bold primary-color" >Neváhej a pusť se do toho!</p>
-
+                </v-col>
                 </div>    
             </v-col>
             <v-col cols="12" sm="5">
-                    x
+                <v-select class="ml-6 mr-6 mt-sm-16"
+                v-model="collectionIdToTest"
+                label="Vyber kolekci k testu"
+                :items="bookCollectionsStore.bookCollections"
+                ></v-select>
+                <div>
+                    
+                    <!-- collectionPic -->
+                </div>
             </v-col>
+            <v-alert v-if="collectionSelected"
+                    v-model=alert
+                    class="mt-4 mb-2 popup_error"
+                    density="compact"
+                    type="error"
+                    title="Pozor!"
+                    text="Musíš vybrat kolekci k testu"
+                    closable
+                ></v-alert>
         </v-row>
     </Header>
     <main>
         <v-row>
         <v-col cols="12" sm="7" class="mt-7">
         <h1 class="testoveOtazkyHeaderMargin"> {{ testName === undefined ? 'Vlastní testové otázky' : testName }}</h1>
-        <div v-for="(question, index) in bookTestsStore.testQuestions" :key="question.id" class="mt-4 ml-16">
-            <div :id="question.id">
+        <div v-for="(question, index) in bookTestsStore.testQuestions" :key="question.id" class="mt-4 ml-sm-16 ml-8">
+            <div :id="question.id" >
             <v-row>
-                <v-col cols="8">
+                <v-col cols="12" sm="8" class="pb-0">
                     <h3 v-if="!editQuestionState[question.id]">{{index + 1}}. {{ question.text }}</h3>
                     <h3 v-else><v-text-field v-model="question.text" variant="underlined"></v-text-field></h3>
                 </v-col>
-                <v-col cols="4">
+                <v-col cols="12" sm="4" class="pl-sm-0 pl-8">
                     <v-btn v-if="!editQuestionState[question.id]" color="primary" @click="editQuestion(question.id)" class="mr-1">Upravit</v-btn>
                     <v-btn v-else color="primary" @click="saveEditedQuestion(question.id)" class="mr-1">Uložit</v-btn>
                     <v-btn color="primary" @click="deleteQuestion(question.id)">Smazat</v-btn>
                 </v-col>
             </v-row>
-            <!-- :v-model="bookTestsStore.testAnswers.filter(answer => answer.is_correct && answer.question_id === question.id)"  -->
-            <v-radio-group 
-                v-model="selectedAnswers[question.id]" 
-                @mouseenter="getBookOnHover(question.book_id)"
-                @mouseleave="getBookOnHover('')"
-                >
-                <v-radio
-                v-for="answer in bookTestsStore.testAnswers.filter(answer => answer.question_id === question.id)"
-                :key="answer.id"
-                :value="answer.id"
-                
-                color="primary">
-                    <template v-if="!editQuestionState[question.id]" v-slot:label >
-                        <div class="ml-3" >{{ answer.text }} </div>
-                    </template>
-                    <template v-else v-slot:label >
-                        <v-text-field class="textIn ml-3 mr-16" v-model="answer.text" variant="underlined"></v-text-field>
-                    </template>
-                    <v-icon icon="mdi-close" color="#002166" @click="deleteAnswer(answer.id)"></v-icon>
-            </v-radio>
-            </v-radio-group>
+            
+            <v-row class="pt-0 pb-0">
+            <v-col cols="12" sm="8" class="pt-0 pb-0">
+                <v-radio-group 
+                    v-model="selectedAnswers[question.id]" 
+                    @mouseenter="getBookOnHover(question.book_id)"
+                    @mouseleave="getBookOnHover('')"
+                    >
+                    <v-radio
+                    v-for="answer in bookTestsStore.testAnswers.filter(answer => answer.question_id === question.id)"
+                    :key="answer.id"
+                    :value="answer.id"
+                    color="primary">
+                        <template v-if="!editQuestionState[question.id]" v-slot:label >
+                            <div class="ml-3" >{{ answer.text }} </div>
+                        </template>
+                        <template v-else v-slot:label>
+                            <v-text-field class="ml-3 mr-16" v-model="answer.text" variant="underlined">
+                                <template v-slot:input class="pt-0">
+
+                                </template>
+                            </v-text-field>
+                        </template>
+                        <v-icon icon="mdi-close" color="#002166" @click="deleteAnswer(answer.id)"></v-icon>
+                </v-radio>
+                </v-radio-group>
+            </v-col>
+            <v-col cols="12" sm="4" class="pl-0 pt-0 pr-13 mb-sm-0 mb-5">
+                <v-select
+                v-model="question.book_id"
+                label="Vyber knihu k otázce"
+                :items="['California', 'Colorado', 'Florida', 'Georgia', 'Texas', 'Wyoming']"
+                ></v-select>
+            </v-col>
+            </v-row>
             </div>
         </div>
 
 
-        <div id="newQuestion" class="ml-14 mt-4">
+        <div id="newQuestion" class="ml-sm-14  ml-6 mt-4">
             <v-text-field class="mr-10" label="Nová otázka" 
             v-model="newQuestion.text" 
             variant="underlined"
@@ -77,11 +109,11 @@
                     @click="newAnswers.splice(newAnswers.findIndex(a => a.id === answer.id), 1)"></v-icon>
                 </v-radio>
                 <v-row>
-                <v-col cols="9">
+                <v-col cols="8" sm="9">
                     <v-radio  v-if="showQuestionInput"  
                     color="primary"
                     :value="newAnswer.is_correct"
-                    class="ml-3">
+                    class="ml-sm-3 ml-0">
                         <template v-slot:label >
                             <v-text-field  label="Nová odpověď" v-model="newAnswer.text" variant="underlined"></v-text-field>
                         </template>
@@ -89,7 +121,7 @@
                     </v-radio>
                     <v-icon icon="mdi-plus" class="clickabeIcon mt-3" v-if="!showQuestionInput" @click="showQuestionInput=true"/>
                 </v-col>
-                <v-col cols="2">
+                <v-col cols="2" sm="2">
                     <v-btn v-if="showQuestionInput" 
                         style=" color: #E4573D;" :disabled="newAnswer.text.length ===0" @click="saveAnswer">Uložit</v-btn>
                 </v-col>
@@ -98,19 +130,26 @@
             <v-btn color="primary" class="mt-5 mb-10" :disabled="newQuestion.text.length ===0" @click="saveQuestion">Uložit otázku</v-btn>
         </div>
 
-        <v-btn color="primary" class="ml-16 mt-3" @click="openDialog">Uložit test
+        <v-btn color="primary" class="ml-sm-16 ml-3 mt-4" @click="openDialog">Uložit test
+        </v-btn>
             <v-dialog
                 v-model="dialog.saveDialog"
-                activator="parent"
                 transition="dialog-bottom-transition"
-                width="300px">
+                width="345px">
                 <!-- <v-toolbar
                 color="primary"
                 title=""
                 ><h2 class="ml-14">Výsledek testu</h2></v-toolbar> -->
                 <v-card>
                     <v-card-text>
-                        <h2 class="ml-11">Pojmenuj test</h2>
+                        <h2 class="ml-16">Pojmenuj test</h2>
+                        <v-alert v-if="testNameSet"
+                            class="mt-4 mb-2 popup_alert"
+                            density="compact"
+                            type="warning"
+                            title="Pozor!"
+                            text="Musíš zadat název testu"
+                        ></v-alert>
                         <v-text-field label="Název testu" v-model="testName" variant="underlined"></v-text-field>
                     </v-card-text>
                     <v-card-actions>
@@ -118,9 +157,8 @@
                     </v-card-actions>
                 </v-card>
             </v-dialog>
-        </v-btn>
 
-        <v-btn color="primary" class="ml-16 mt-3">Smazat test
+        <v-btn color="primary" class="ml-sm-16 ml-3 mt-4">Smazat test
             <v-dialog
                 v-model="dialog.deleteDialog"
 
@@ -169,32 +207,42 @@ import Header from "@/components/Header.vue";
 import { useBookTestsStore } from "@/stores/bookTests";
 import { useAuthStore } from '@/stores/auth'
 import { useBooksStore } from '@/stores/books'
+import { useBookCollectionsStore } from "@/stores/bookCollections";
 import { onMounted, computed, onBeforeUnmount, reactive, ref, defineProps} from 'vue'
 import { Book as BookInterface } from "@/model/Book";
 import { BookTestAnswer}  from "@/types/index";
 import { BookTestQuestion } from "@/types/index";
 import { BookTest } from "@/types/index";
+import { BookCollection } from "@/types/index";
 import { db } from "@/main"
 import { collection,doc } from '@firebase/firestore'
 import router from '@/router/index'
 
+const props = defineProps<{
+    testId: string
+}>()
+
 const bookTestsStore = useBookTestsStore()
 const authStore = useAuthStore()
 const booksStore = useBooksStore()
+const bookCollectionsStore = useBookCollectionsStore()
 
 const newTestRef = doc(collection(db, "book_tests"))
 let newQuestionRef = doc(collection(db, "test_questions"))
 
 const questionToRef: Array<any> = []
 
-const props = defineProps<{
-    testId: string
-}>()
-
 const showQuestionInput = ref(false)
 const editQuestionState = ref<Record<string, boolean>>({})
 
+
+//const collectionPic = ref<BookCollection | undefined>(bookCollectionsStore.bookCollections.find(collection => collection.id === collectionIdToTest.value).thumbnail)
+const collectionIdToTest = ref<string | undefined>(bookTestsStore.tests.find(test => test.id === props.testId)?.book_collection_id) 
 const testName = ref<string | undefined>(bookTestsStore.tests.find(test => test.id === props.testId)?.name)
+
+const collectionSelected = ref(false)
+const testNameSet = ref(false)
+let alert = ref(false)
 
 const newAnswers = reactive<BookTestAnswer[]>([])
 const selectedAnswers = ref<Record<string, string>>({});
@@ -278,7 +326,7 @@ const saveQuestion = async () => {
         id: newQuestion.id,
         text: newQuestion.text,
         test_id: props.testId === 'new' ? '' : props.testId,
-        book_id: 'pridat potom',
+        book_id: '',
         selected_answer_id: newQuestion.selected_answer_id
     }
     questionToRef.push(newQuestionRef)
@@ -304,13 +352,17 @@ const saveQuestion = async () => {
 }
 
 const saveTest = async () => {
+    if(testName.value === undefined || testName.value === ''){
+        testNameSet.value = true
+        return
+    }
     dialog.saveDialog = false
     const newBookTest: BookTest = {
         id: '',
         name: testName.value,
         is_generated: false,
         user_id: authStore.user.id,
-        book_collection_id: 'collection_id'
+        book_collection_id: collectionIdToTest.value,
     }
     
     await bookTestsStore.testAnswers.forEach(a => {
@@ -326,9 +378,9 @@ const saveTest = async () => {
         await bookTestsStore.addQuestionsToTest(newQuestions.map(q => (q.test_id = newTestRef.id, q)), questionToRef)
     } else {
         await bookTestsStore.updateTestName(props.testId, testName.value)
+        await bookTestsStore.updateTestCollectionId(props.testId, collectionIdToTest.value)
         await bookTestsStore.addQuestionsToTest(newQuestions.map(q => (q.test_id = props.testId, q)), questionToRef)
     }
-    console.log(bookTestsStore.testAnswers)
     await bookTestsStore.updateQuestionsAndAnswers()
 
     router.push('/testy/vyber')
@@ -336,9 +388,16 @@ const saveTest = async () => {
 
 
 const openDialog = () => {
-    if(props.testId !== 'new'){
+    if(collectionIdToTest.value === undefined){
+        collectionSelected.value = true
+        alert.value = true
+    } else{
+        if(props.testId !== 'new'){
         testName.value = bookTestsStore.tests.find(test => test.id === props.testId)?.name
     }
+        dialog.saveDialog = true
+    }
+
 }
 
 const questionsTotal = computed(() => bookTestsStore.testQuestions.length)
@@ -359,6 +418,7 @@ const getBookOnHover = async (bookId: string) => {
 onMounted(async () => {
     await bookTestsStore.testQuestions.splice(0, bookTestsStore.testQuestions.length)
     await bookTestsStore.testAnswers.splice(0, bookTestsStore.testAnswers.length)
+    await bookCollectionsStore.getBookCollections(authStore.user.id)
     if(props.testId !== 'new'){
         await bookTestsStore.getAllTests(authStore.user.id)
         await bookTestsStore.getAllQuestionsByTestID(props.testId)
@@ -369,7 +429,7 @@ onMounted(async () => {
                 selectedAnswers.value[question.id] = rightAns.id
             }
         })
-    }
+    } 
 })
 
 onBeforeUnmount(async() => {
@@ -385,9 +445,10 @@ onBeforeUnmount(async() => {
     margin: 55px 0 0 110px;
 
     @media screen and (max-width: 648px){
-        margin: 30px 30px 0 20px;
+        margin: 30px 30px 0 40px;
         text-align: left;
     }
+    
 }
 
 div > p {
@@ -401,16 +462,21 @@ div > p {
 .fixedPosition {
     position: -webkit-sticky;
     position: sticky;
-    top: 10%
+    top: 3%;
+
+    @media screen and (max-width: 648px){
+        display: none;
+    }
 }
 
 .testoveOtazkyHeaderMargin {
     margin-left: 82px;
+
+    @media screen and (max-width: 648px){
+        margin-left: 50px;
+    }
 }
 
-.textIn {
-    padding-top: 10px;
-}
 
 .clickabeIcon {
     color: grey;
@@ -423,5 +489,29 @@ div > p {
     transition: transform 0.3s;
 }
 
+.popup_error{
+  position: fixed;
+  z-index: 1;
+  top: 4%;
+  left: 25%;
+  opacity: 0;
+  animation: fadeIn 0.5s ease-in-out forwards;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.popup_alert {
+  opacity: 0;
+  animation: fadeIn 0.5s ease-in-out forwards;
+}
 
 </style>

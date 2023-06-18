@@ -31,7 +31,7 @@ export interface BookTest {
     name: string | undefined,
     is_generated: boolean,
     user_id: string | undefined,
-    book_collection_id: string
+    book_collection_id: string | undefined
 }
 
 export interface BookTestQuestion {

@@ -87,6 +87,11 @@ export const useBookTestsStore = defineStore("bookTst", () => {
         await updateDoc(testRef, { name: name })
     }
 
+    const updateTestCollectionId = async (test_id: string, book_collection_id: string | undefined) => {
+        const testRef = doc(db, "book_tests", test_id)
+        await updateDoc(testRef, { book_collection_id: book_collection_id })
+    }
+
     const updateQuestionsAndAnswers = async () => {
         const batch = writeBatch(db)
 
@@ -232,6 +237,7 @@ export const useBookTestsStore = defineStore("bookTst", () => {
         addAnswersToTest,
 
         updateTestName,
+        updateTestCollectionId,
         updateQuestionsAndAnswers,
 
         deleteTestCompletely,

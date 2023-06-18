@@ -31,7 +31,7 @@ export const useBookCollectionsStore = defineStore("bookCols", () => {
         currentBookCollection.user_id = col.user_id
     }
 
-    const getBookCollections = async (user_id: string) => {
+    const getBookCollections = async (user_id: string | undefined) => {
         const q = query(bookCollectionsRef, where("user_id", "==", user_id))
         const snapshot = await getDocs(q)
 
