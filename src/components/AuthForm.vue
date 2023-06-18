@@ -9,7 +9,9 @@
             <label for="password">
                 Heslo<input id="password" class="basic-textfield" type="password" required v-model="formState.password">
             </label>
-            <div class="default-link supporting-text" v-if="authType.buttonLabel === 'Přihlásit se'">Zapomněl/a jste heslo?</div>
+            <div class="default-link supporting-text" v-if="authType.buttonLabel === 'Přihlásit se'">
+                <router-link :to="{ name: 'password_reset' }">Zapomněl/a jste heslo?</router-link>
+            </div>
         </div>
         
         <div class="textfield-wrapper" v-if="authType.buttonLabel === 'Zaregistrovat se'">

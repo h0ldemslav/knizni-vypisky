@@ -9,7 +9,7 @@ const routes: RouteRecordRaw[] = [
         component: () => import("@/router/pages/BooksPage.vue")
     },
     {
-        path: "/detail_knihy/:id",
+        path: "/detail-knihy/:id",
         name: "book_detail",
         component: () => import("@/router/pages/BookDetailPage.vue"),
         props: true
@@ -39,6 +39,14 @@ const routes: RouteRecordRaw[] = [
         path: "/login",
         name: "auth",
         component: () => import("@/router/pages/AuthPage.vue"),
+        meta: {
+            requiresGuest: true
+        }
+    },
+    {
+        path: "/obnova-hesla",
+        name:"password_reset",
+        component: () => import("@/router/pages/PasswordResetPage.vue"),
         meta: {
             requiresGuest: true
         }
