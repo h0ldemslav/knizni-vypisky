@@ -46,7 +46,7 @@
 <script lang="ts" setup>
 
 import Header from "@/components/Header.vue";
-import Book from "@/components/data_templates/Book.vue";
+import Book from "@/components/data_templates/BookCard.vue";
 import { Book as BookInterface } from "@/model/Book";
 import { onMounted, computed, reactive, ref} from 'vue'
 import { useBookCollectionsStore } from '@/stores/bookCollections'

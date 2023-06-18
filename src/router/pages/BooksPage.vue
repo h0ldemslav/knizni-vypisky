@@ -11,7 +11,7 @@
 
       <v-text-field
           class="search-field"
-          :loading="booksStore.isLoadingSearchedBooks"
+          :loading="booksStore.isLoadingSearchedBooks.valueOf()"
           v-model="state.query"
           density="compact"
           variant="solo"
@@ -25,7 +25,7 @@
   </Header>
   <main>
     <section class="books">
-      <Book v-for="book in booksStore.books.values()"
+      <BookCard v-for="book in booksStore.books.values()"
             :book="book"
             :key="book.id"/>
     </section>
@@ -39,8 +39,8 @@ import Header from "@/components/Header.vue";
 import {useBooksStore} from "@/stores/books";
 import {onMounted, reactive} from "vue";
 import {Order} from "@/services/BooksApiClient";
-import Book from "@/components/data_templates/Book.vue";
 import Footer from "@/components/Footer.vue";
+import BookCard from "@/components/data_templates/BookCard.vue";
 
 const booksStore = useBooksStore();
 
