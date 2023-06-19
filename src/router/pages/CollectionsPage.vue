@@ -30,12 +30,24 @@
   </Header>
 
   <main>
-    <v-container fluid class="pa-8">
+    <div class="d-flex justify-center ma-6" v-if="state.isLoadingCollections">
+      <v-progress-circular
+          color="primary"
+          indeterminate
+          :size="68"
+          :width="5"/>
+    </div>
+
+    <v-container fluid class="pa-8" v-else>
       <v-row class="justify-center">
-        <v-col cols="12" sm="6" md="4" lg="3" v-for="collection in bookCollectionsStore.bookCollections"
-               :key="collection.id">
+        <v-col v-if="bookCollectionsStore.bookCollections.length > 0" cols="12" sm="6" md="4" lg="3"
+               v-for="collection in bookCollectionsStore.bookCollections" :key="collection.id">
           <Collection :collection="collection"/>
         </v-col>
+
+        <div v-else>
+          <h2 class="mt-16">Zatím nemáte žádné kolekce</h2>
+        </div>
       </v-row>
     </v-container>
   </main>
@@ -58,7 +70,8 @@ import AddEditCollectionDialog from "@/components/AddEditCollectionDialog.vue";
 
 // component
 const state = reactive({
-  isDialogVisible: false
+  isDialogVisible: false,
+  isLoadingCollections: true
 })
 
 // stores
@@ -70,6 +83,8 @@ const q = query(bookCollectionsRef, where("user_id", "==", authStore.user.id))
 
 // hooks
 onMounted(() => {
+  state.isLoadingCollections = true
+
   onSnapshot(q, (snapshot) => {
     const queriedBookCollections: Array<BookCollection> = Array()
 
@@ -87,6 +102,8 @@ onMounted(() => {
 
     bookCollectionsStore.bookCollections.length = 0
     bookCollectionsStore.bookCollections.push(...queriedBookCollections)
+
+    state.isLoadingCollections = false
   })
 })
 </script>
