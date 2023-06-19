@@ -16,7 +16,7 @@
                   color="primary"
                   prepend-icon="mdi-book-plus-multiple-outline"
                   small
-                  @click="state.dialogVisible = true">
+                  @click="state.isDialogVisible = true">
                 Vytvořit kolekci
               </v-btn>
             </div>
@@ -40,9 +40,9 @@
     </v-container>
   </main>
 
-  <AddCollectionDialog
-      :dialog-visible="state.dialogVisible"
-      @update:dialog-visible="isVisible => state.dialogVisible = isVisible"/>
+  <AddEditCollectionDialog
+      :dialog-visible="state.isDialogVisible"
+      @update:dialog-visible="isVisible => state.isDialogVisible = isVisible"/>
 </template>
 
 <script lang="ts" setup>
@@ -54,17 +54,21 @@ import {bookCollectionsRef} from '@/main'
 import {query, where, onSnapshot} from '@firebase/firestore'
 import {BookCollection} from '@/types'
 import Collection from "@/components/data_templates/CollectionCard.vue";
-import AddCollectionDialog from "@/components/AddCollectionDialog.vue";
+import AddEditCollectionDialog from "@/components/AddEditCollectionDialog.vue";
 
+// component
+const state = reactive({
+  isDialogVisible: false
+})
+
+// stores
 const authStore = useAuthStore()
 const bookCollectionsStore = useBookCollectionsStore()
 
-const state = reactive({
-  dialogVisible: false
-})
-
+// data
 const q = query(bookCollectionsRef, where("user_id", "==", authStore.user.id))
 
+// hooks
 onMounted(() => {
   onSnapshot(q, (snapshot) => {
     const queriedBookCollections: Array<BookCollection> = Array()

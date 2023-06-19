@@ -11,24 +11,25 @@
         </v-col>
         <v-col cols="8">
           <div>
-            <h1 class="mb-2">{{ collection?.title }}</h1>
+            <h1 class="mb-2">{{ collection.title }}</h1>
 
             <v-chip
                 prepend-icon="mdi-bookshelf"
                 variant="elevated"
                 class="bg-primary">
-              {{ collection?.books.length }} {{ getCollectionLabel(collection?.books.length) }}
+              {{ collection.books.length }}
+              {{ getCollectionLabel(collection.books.length) }}
             </v-chip>
 
           </div>
           <v-spacer></v-spacer>
           <div class="mt-10">
-            <!-- TODO EDIT -->
             <v-btn
                 rounded="lg"
                 class="btn bg-info me-5"
                 prepend-icon="mdi-pencil"
-                variant="tonal">
+                variant="tonal"
+                @click="state.isDialogVisible = true">
               Upravit
             </v-btn>
 
@@ -49,7 +50,6 @@
   </Header>
 
   <main>
-
     <v-data-table
         v-if="!state.isLoadingBooks"
         :headers="headers"
@@ -102,6 +102,11 @@
       </v-progress-circular>
     </div>
   </main>
+
+  <AddEditCollectionDialog
+      :collection-id="id"
+      :dialog-visible="state.isDialogVisible"
+      @update:dialog-visible="isVisible => state.isDialogVisible = isVisible"/>
 </template>
 
 <script setup lang="ts">
@@ -109,31 +114,32 @@ import Header from "@/components/Header.vue";
 import {onMounted, reactive, ref} from "vue";
 import {useBookCollectionsStore} from "@/stores/bookCollections";
 import {Book} from "@/types/model/Book";
-import {BookCollection} from "@/types";
 import {useRoute, useRouter} from "vue-router";
 import {useAuthStore} from "@/stores/auth";
 import {useBooksStore} from "@/stores/books";
 import {Mutex} from "async-mutex"
 import {DEFAULT_COLLECTION_IMAGE, getCollectionImage, getCollectionLabel} from "@/utils/bookCollectionUtils";
+import AddEditCollectionDialog from "@/components/AddEditCollectionDialog.vue";
 
 // component
 const state = reactive({
   isLoadingCollection: true,
   isLoadingBooks: true,
-  image: DEFAULT_COLLECTION_IMAGE
+  isDialogVisible: false,
+  image: DEFAULT_COLLECTION_IMAGE,
 })
 
 // routing
-const id = useRoute().params.id
+const id = useRoute().params.id as string
 const router = useRouter()
 
 // stores
 const authStore = useAuthStore()
-const bookCollectionsStore = useBookCollectionsStore()
+const collStore = useBookCollectionsStore()
 const booksStore = useBooksStore()
 
 // data
-const collection = ref<BookCollection>()
+const collection = reactive(collStore.currentBookCollection)
 const books = ref<Book[]>([])
 const lock = new Mutex()
 const headers = [
@@ -150,18 +156,11 @@ const fetchCollection = async () => {
   state.isLoadingCollection = true
 
   try {
-    await bookCollectionsStore.getBookCollections(authStore.user.id)
-    const foundCollections = bookCollectionsStore.bookCollections.filter((coll) => {
-      return coll.id == id
-    })
+    await collStore.getBookCollectionById(id, authStore.user.id)
 
-    if (foundCollections.length == 0) {
+    if (collStore.currentBookCollection.id == "") {
       await router.push({name: "page_not_found"})
-    } else {
-      collection.value = foundCollections[0]
-      bookCollectionsStore.setCurrentBookCollection(foundCollections[0])
     }
-
   } catch {
     await router.push({name: "page_not_found"})
   }
@@ -172,8 +171,8 @@ const fetchCollection = async () => {
 const fetchBooks = async () => {
   state.isLoadingBooks = true
 
-  if (collection.value != undefined) {
-    await Promise.all(collection.value?.books.map(async (bookId) => {
+  if (collStore.currentBookCollection.books.length != 0) {
+    await Promise.all(collStore.currentBookCollection.books.map(async (bookId) => {
           const book = await booksStore.getBookById(bookId)
           if (book != undefined) {
             const release = await lock.acquire()
@@ -192,14 +191,14 @@ const fetchBooks = async () => {
 }
 
 const removeBook = async (bookId: string) => {
-  await bookCollectionsStore.removeBook(id, bookId)
+  await collStore.removeBook(id, bookId)
   books.value = books.value.filter((book) => {
     return book.id != bookId
   })
 }
 
 const deleteCollection = async () => {
-  await bookCollectionsStore.removeBookCollection(id)
+  await collStore.removeBookCollection(id)
   router.back()
 }
 
@@ -208,8 +207,8 @@ onMounted(async () => {
   await fetchCollection()
   await fetchBooks()
 
-  if (collection.value != undefined) {
-    state.image = await getCollectionImage(collection.value)
+  if (collStore.currentBookCollection.id != "") {
+    state.image = await getCollectionImage(collStore.currentBookCollection)
   }
 })
 </script>
