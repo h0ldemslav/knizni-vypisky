@@ -18,7 +18,7 @@
               id="title-textfield"
               variant="solo"
               label="Název kolekce"
-              :rules="[requiredRule]"
+              :rules="[requiredRule, titleLessThan75CharsRule]"
               v-model="state.title"
           />
         </v-card-text>
@@ -82,7 +82,7 @@ const saveCollection = async () => {
   state.isLoading = true
 
   // validate form
-  if (formRef.value?.validate() && state.title.length != 0) {
+  if (formRef.value?.validate() && state.title.length != 0 && state.title.length < 75) {
     if (props.collectionId == null) {
       // create new collection
       await collStore.createBookCollection({
@@ -111,6 +111,7 @@ const closeDialog = () => {
 
 // rules
 const requiredRule = (value: string) => !!value || 'Název kolekce je povinný'
+const titleLessThan75CharsRule = (value: string) => value.length < 75 || 'Název kolekce musí být kratší než 75 znaků'
 
 // hooks
 onMounted(async () => {
