@@ -38,7 +38,7 @@
           :width="5"/>
     </div>
 
-    <v-container fluid class="pa-8" v-else>
+    <v-container fluid class="pa-8 collections" v-else>
       <v-row class="justify-center">
         <v-col v-if="bookCollectionsStore.bookCollections.length > 0" cols="12" sm="6" md="4" lg="3"
                v-for="collection in bookCollectionsStore.bookCollections" :key="collection.id">
@@ -46,7 +46,7 @@
         </v-col>
 
         <div v-else>
-          <h2 class="mt-16">Zatím nemáte žádné kolekce</h2>
+          <h2 id="noCollectionMessage" class="mt-16">Zatím nemáte žádné kolekce</h2>
         </div>
       </v-row>
     </v-container>

@@ -25,6 +25,7 @@
           <v-spacer></v-spacer>
           <div class="mt-10">
             <v-btn
+                id="editCollection"
                 rounded="lg"
                 class="btn bg-info me-5"
                 prepend-icon="mdi-pencil"
@@ -34,6 +35,7 @@
             </v-btn>
 
             <v-btn
+                id="deleteCollection"
                 rounded="lg"
                 class="btn bg-error"
                 prepend-icon="mdi-trash-can-outline"
