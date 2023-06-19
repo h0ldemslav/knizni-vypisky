@@ -59,12 +59,18 @@
       <template v-slot:item="{ item }">
         <tr>
           <td>
-            <v-avatar v-if="item.columns.image != null" size="70" class="rounded ma-5">
-              <img :src="item.columns.image.smallThumbnail" alt="">
-            </v-avatar>
+            <router-link :to="{name:'book_detail', params: { id: item.columns.id }}">
+              <v-avatar v-if="item.columns.image != null" size="70" class="rounded ma-5">
+                <img :src="item.columns.image.smallThumbnail" alt="">
+              </v-avatar>
+            </router-link>
           </td>
 
-          <td>{{ item.columns.title }}</td>
+          <td>
+            <router-link :to="{name:'book_detail', params: { id: item.columns.id }}">
+              {{ item.columns.title }}
+            </router-link>
+          </td>
 
           <td>
             <span v-if="item.columns.authors.length > 0">
