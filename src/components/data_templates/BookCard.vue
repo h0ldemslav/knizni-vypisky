@@ -36,7 +36,7 @@
 </template>
 
 <script setup lang="ts">
-import {Book} from "@/model/Book";
+import {Book} from "@/types/model/Book";
 
 const props = defineProps<{ book: Book }>();
 </script>

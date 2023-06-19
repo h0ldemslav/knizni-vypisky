@@ -157,7 +157,7 @@
 <script lang="ts" setup>
     import { useBooksStore } from '@/stores/books'
     import { onMounted, ref, reactive } from 'vue'
-    import { Book } from '@/model/Book'
+    import { Book } from '@/types/model/Book'
     import { BookCollection, BookLanguage, NoteField } from '@/types'
     import { useAuthStore } from '@/stores/auth'
     import { useBookNotesStore } from '@/stores/bookNotes'

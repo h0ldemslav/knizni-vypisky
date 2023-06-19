@@ -209,7 +209,7 @@ import { useAuthStore } from '@/stores/auth'
 import { useBooksStore } from '@/stores/books'
 import { useBookCollectionsStore } from "@/stores/bookCollections";
 import { onMounted, computed, onBeforeUnmount, reactive, ref, defineProps} from 'vue'
-import { Book as BookInterface } from "@/model/Book";
+import { Book as BookInterface } from "@/types/model/Book";
 import { BookTestAnswer}  from "@/types/index";
 import { BookTestQuestion } from "@/types/index";
 import { BookTest } from "@/types/index";

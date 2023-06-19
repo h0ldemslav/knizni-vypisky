@@ -120,7 +120,7 @@ import { useBookTestsStore } from "@/stores/bookTests";
 import { useAuthStore } from '@/stores/auth'
 import { useBooksStore } from '@/stores/books'
 import { onMounted, onBeforeUnmount , computed, reactive, ref, defineProps} from 'vue'
-import { Book as BookInterface } from "@/model/Book";
+import { Book as BookInterface } from "@/types/model/Book";
 import router from '@/router/index'
 
 

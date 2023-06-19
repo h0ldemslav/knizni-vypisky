@@ -1,6 +1,6 @@
-import {BookImage} from "@/model/BookImage";
-import {BookRating} from "@/model/BookRating";
-import {ISBN} from "@/model/ISBN";
+import {BookImage} from "@/types/model/BookImage";
+import {BookRating} from "@/types/model/BookRating";
+import {ISBN} from "@/types/model/ISBN";
 
 export interface Book {
     id: string

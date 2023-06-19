@@ -108,7 +108,7 @@
 import Header from "@/components/Header.vue";
 import {onMounted, reactive, ref} from "vue";
 import {useBookCollectionsStore} from "@/stores/bookCollections";
-import {Book} from "@/model/Book";
+import {Book} from "@/types/model/Book";
 import {BookCollection} from "@/types";
 import {useRoute, useRouter} from "vue-router";
 import {useAuthStore} from "@/stores/auth";
