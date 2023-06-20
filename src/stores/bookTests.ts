@@ -1,9 +1,10 @@
-import { BookTest, BookTestQuestion, BookTestAnswer } from '@/types'
-import { defineStore } from 'pinia'
-import { reactive } from 'vue'
-import { db } from '@/main'
+import {BookTest, BookTestQuestion, BookTestAnswer, BookTestPassed} from '@/types'
+import {defineStore} from 'pinia'
+import {reactive} from 'vue'
+import {db} from '@/main'
 import {
     getDocs,
+    getDoc,
     query,
     where,
     collection,
@@ -12,6 +13,7 @@ import {
     writeBatch,
     deleteDoc,
     updateDoc,
+    Timestamp
 } from '@firebase/firestore'
 
 export const useBookTestsStore = defineStore("bookTst", () => {
@@ -19,6 +21,15 @@ export const useBookTestsStore = defineStore("bookTst", () => {
     const tests = reactive<Array<BookTest>>([])
     const testQuestions = reactive<Array<BookTestQuestion>>([])
     const testAnswers = reactive<Array<BookTestAnswer>>([])
+    const currentTest = reactive<BookTest>({id: "", name: "", is_generated: false, user_id: "", book_collection_id: ""})
+    const currentPassedTest = reactive<BookTestPassed>({
+        id: "",
+        test_id: "",
+        user_id: "",
+        created_at: Timestamp.now(),
+        selected_answers_ids: []
+    })
+    const passedTests = reactive<Array<BookTestPassed>>([])
 
     const createNewTest = async (test: BookTest, newTestRef: any) => {
         // Batch allows to execute multiple operations together
@@ -26,7 +37,7 @@ export const useBookTestsStore = defineStore("bookTst", () => {
         const { id, name, is_generated, user_id, book_collection_id } = test
 
         const batch = writeBatch(db)
-        batch.set(newTestRef, {name, is_generated, user_id, book_collection_id })
+        batch.set(newTestRef, {name, is_generated, user_id, book_collection_id})
 
         tests.push({
             id: newTestRef.id,
@@ -41,21 +52,20 @@ export const useBookTestsStore = defineStore("bookTst", () => {
 
     const addQuestionsToTest = async (questions: Array<BookTestQuestion>, questionRef: Array<any>) => {
         const batch = writeBatch(db)
-        let index=-1
-        
+        let index = -1
+
         questions.map((question) => {
             // const newRef = doc(collection(db, "test_questions"))
             index++
-            const {text, book_id, test_id, selected_answer_id } = question
-            
-            batch.set(questionRef[index], {text, book_id, test_id, selected_answer_id })
+            const {text, book_id, test_id} = question
 
-            return { 
+            batch.set(questionRef[index], {text, book_id, test_id})
+
+            return {
                 id: questionRef[index].id,
                 text: text,
                 book_id: book_id,
-                test_id: test_id,
-                selected_answer_id: selected_answer_id
+                test_id: test_id
             }
         })
 
@@ -67,9 +77,9 @@ export const useBookTestsStore = defineStore("bookTst", () => {
 
         testAnswers.push(...answers.map((answer) => {
             const newRef = doc(collection(db, "test_answers"))
-            const { text, is_correct, question_id } = answer
+            const {text, is_correct, question_id} = answer
 
-            batch.set(newRef, { text, is_correct, question_id })
+            batch.set(newRef, {text, is_correct, question_id})
 
             return {
                 id: newRef.id,
@@ -84,27 +94,27 @@ export const useBookTestsStore = defineStore("bookTst", () => {
 
     const updateTestName = async (test_id: string, name: string | undefined) => {
         const testRef = doc(db, "book_tests", test_id)
-        await updateDoc(testRef, { name: name })
+        await updateDoc(testRef, {name: name})
     }
 
     const updateTestCollectionId = async (test_id: string, book_collection_id: string | undefined) => {
         const testRef = doc(db, "book_tests", test_id)
-        await updateDoc(testRef, { book_collection_id: book_collection_id })
+        await updateDoc(testRef, {book_collection_id: book_collection_id})
     }
 
     const updateQuestionsAndAnswers = async () => {
         const batch = writeBatch(db)
 
         testQuestions.forEach((question) => {
-            const { text, book_id, test_id, selected_answer_id } = question
+            const {text, book_id, test_id} = question
             const questionRef = doc(db, "test_questions", question.id)
-            batch.update(questionRef, { text, book_id, test_id, selected_answer_id })
+            batch.update(questionRef, {text, book_id, test_id})
         })
 
         testAnswers.forEach((answer) => {
-            const { text, is_correct, question_id } = answer
+            const {text, is_correct, question_id} = answer
             const answerRef = doc(db, "test_answers", answer.id)
-            batch.update(answerRef, { text, is_correct, question_id })
+            batch.update(answerRef, {text, is_correct, question_id})
         })
 
         await batch.commit()
@@ -174,6 +184,27 @@ export const useBookTestsStore = defineStore("bookTst", () => {
         })
     }
 
+    const getTestById = async (id: string, user_id: string | undefined) => {
+        // reset current test
+        currentTest.id = ""
+        currentTest.name = ""
+        currentTest.user_id = ""
+        currentTest.is_generated = false
+        currentTest.book_collection_id = ""
+
+        const docRef = doc(db, "book_tests", id)
+
+        const snapshot = await getDoc(docRef)
+
+        if (snapshot.exists() && snapshot.data().user_id == user_id) {
+            currentTest.id = snapshot.id
+            currentTest.name = snapshot.data().name
+            currentTest.user_id = snapshot.data().userId
+            currentTest.is_generated = snapshot.data().is_generated
+            currentTest.book_collection_id = snapshot.data().book_collection_id
+        }
+    }
+
     const getAllQuestionsByTestID = async (id: string) => {
         const q = query(collection(db, "test_questions"), where("test_id", "==", id))
         const snapshot = await getDocs(q)
@@ -182,12 +213,11 @@ export const useBookTestsStore = defineStore("bookTst", () => {
 
         snapshot.docs.forEach((doc) => {
             testQuestions.push(
-                { 
-                    id: doc.id, 
+                {
+                    id: doc.id,
                     text: doc.data().text,
                     test_id: doc.data().test_id,
                     book_id: doc.data().book_id,
-                    selected_answer_id: doc.data().selected_answer_id
                 }
             )
         })
@@ -203,8 +233,8 @@ export const useBookTestsStore = defineStore("bookTst", () => {
         const ids: Array<string> = testQuestions.map((question) => {
             return question.id
         })
-        
-        if(ids.length === 0) return
+
+        if (ids.length === 0) return
         const q = query(collection(db, "test_answers"), where("question_id", "in", ids))
         const snapshot = await getDocs(q)
 
@@ -212,8 +242,8 @@ export const useBookTestsStore = defineStore("bookTst", () => {
 
         snapshot.docs.forEach((doc) => {
             testAnswers.push(
-                { 
-                    id: doc.id, 
+                {
+                    id: doc.id,
                     text: doc.data().text,
                     is_correct: doc.data().is_correct,
                     question_id: doc.data().question_id
@@ -222,13 +252,93 @@ export const useBookTestsStore = defineStore("bookTst", () => {
         })
     }
 
+    const createPassedTest = async (test: BookTestPassed, newTestPassedRef: any) => {
+        const {id, test_id, user_id, selected_answers_ids, created_at} = test
+
+        const batch = writeBatch(db)
+        batch.set(newTestPassedRef, {test_id, user_id, selected_answers_ids, created_at})
+
+        passedTests.push({
+            id: newTestPassedRef.id,
+            test_id: test.test_id,
+            user_id: test.user_id,
+            selected_answers_ids: test.selected_answers_ids,
+            created_at: test.created_at
+        })
+
+        await batch.commit()
+    }
+
+    const getAllPassedTests = async (user_id: string | undefined) => {
+        const q = query(collection(db, "test_passed"), where("user_id", "==", user_id))
+        const snapshot = await getDocs(q)
+
+        passedTests.length = 0
+
+        snapshot.docs.forEach((document) => {
+            passedTests.push(
+                {
+                    id: document.id,
+                    test_id: document.data().test_id,
+                    user_id: document.data().user_id,
+                    selected_answers_ids: document.data().selected_answers_ids,
+                    created_at: document.data().created_at
+                }
+            )
+        })
+    }
+
+    const getPassedTestById = async (id: string, user_id: string | undefined) => {
+        const docRef = doc(db, "test_passed", id)
+
+        const snapshot = await getDoc(docRef)
+
+        if (snapshot.exists() && snapshot.data().user_id == user_id) {
+            // questions of passed test
+            await getAllQuestionsByTestID(snapshot.data().test_id)
+
+            // answers of passed test
+            await getAllAnswers()
+            const passedTestAnswers = testAnswers.filter((answer) => {
+                return snapshot.data().selected_answers_ids.includes(answer.id)
+            })
+
+            console.log(snapshot.data().selected_answers_ids)
+
+            testAnswers.length = 0
+            testAnswers.push(...passedTestAnswers)
+
+            // test of passed test
+            await getTestById(snapshot.data().test_id, user_id)
+
+            // passed test
+            currentPassedTest.id = snapshot.id
+            currentPassedTest.test_id = snapshot.data().test_id
+            currentPassedTest.user_id = snapshot.data().user_id
+            currentPassedTest.selected_answers_ids = snapshot.data().selected_answers_ids
+            currentPassedTest.created_at = snapshot.data().created_at
+        }
+    }
+
+    const deletePassedTest = async (id: string) => {
+        const batch = writeBatch(db)
+
+        const testRef = doc(db, "test_passed", id)
+        batch.delete(testRef)
+
+        await batch.commit()
+    }
 
     return {
         tests,
         testQuestions,
         testAnswers,
+        passedTests,
+        currentTest,
+        currentPassedTest,
 
         getAllTests,
+        getTestById,
         getAllQuestionsByTestID,
         getAllAnswers,
 
@@ -242,6 +352,11 @@ export const useBookTestsStore = defineStore("bookTst", () => {
 
         deleteTestCompletely,
         deleteQuestion,
-        deleteAnswer
+        deleteAnswer,
+
+        createPassedTest,
+        getAllPassedTests,
+        getPassedTestById,
+        deletePassedTest
     }
 })

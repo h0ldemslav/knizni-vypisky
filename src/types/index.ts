@@ -1,5 +1,7 @@
 // User auth
 
+import {Timestamp} from "@firebase/firestore";
+
 export interface User {
     id: string | undefined
 }
@@ -39,7 +41,6 @@ export interface BookTestQuestion {
     text: string,
     book_id: string,
     test_id: string
-    selected_answer_id: string
 }
 
 export interface BookTestAnswer {
@@ -47,6 +48,14 @@ export interface BookTestAnswer {
     text: string,
     is_correct: boolean,
     question_id: string
+}
+
+export interface BookTestPassed {
+    id: string
+    test_id: string
+    user_id: string
+    selected_answers_ids: string[]
+    created_at: Timestamp;
 }
 
 // Book detail

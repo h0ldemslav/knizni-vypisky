@@ -272,7 +272,6 @@ const newQuestion = reactive({
     id: newQuestionRef.id,
     text: '',
     book_id: '',
-    selected_answer_id: "",
 })
 
 const newAnswer = reactive({
@@ -344,7 +343,6 @@ const saveQuestion = async () => {
         text: newQuestion.text,
         test_id: props.testId === 'new' ? '' : props.testId,
         book_id: '',
-        selected_answer_id: newQuestion.selected_answer_id
     }
     questionToRef.push(newQuestionRef)
     newQuestions.push(newQ)
@@ -360,7 +358,6 @@ const saveQuestion = async () => {
     newQuestionRef = doc(collection(db, "test_questions"))
     newQuestion.id = newQuestionRef.id
     newQuestion.text = ""
-    newQuestion.selected_answer_id = ""
     newAnswer.text = ""
     newAnswer.id = 0
 
