@@ -13,13 +13,12 @@
             </v-col>
             <v-col cols="12" sm="5">
                 <v-select class="ml-6 mr-6 mt-sm-16"
-                v-model="collectionIdToTest"
+                v-model="collectionNameToTest"
                 label="Vyber kolekci k testu"
                 :items="bookCollectionsStore.bookCollections"
                 ></v-select>
                 <div>
-                    
-                    <!-- collectionPic -->
+                    <!-- collecionPic -->
                 </div>
             </v-col>
             <v-alert v-if="collectionSelected"
@@ -30,7 +29,7 @@
                     title="Pozor!"
                     text="Musíš vybrat kolekci k testu"
                     closable
-                ></v-alert>
+            ></v-alert>
         </v-row>
     </Header>
     <main>
@@ -81,7 +80,9 @@
                 <v-select
                 v-model="question.book_id"
                 label="Vyber knihu k otázce"
-                :items="['California', 'Colorado', 'Florida', 'Georgia', 'Texas', 'Wyoming']"
+                :items="selectedCollectionBooks"
+                item-title="title"
+                item-value="id"
                 ></v-select>
             </v-col>
             </v-row>
@@ -208,14 +209,16 @@ import { useBookTestsStore } from "@/stores/bookTests";
 import { useAuthStore } from '@/stores/auth'
 import { useBooksStore } from '@/stores/books'
 import { useBookCollectionsStore } from "@/stores/bookCollections";
-import { onMounted, computed, onBeforeUnmount, reactive, ref, defineProps} from 'vue'
-import { Book as BookInterface } from "@/model/Book";
+import { onMounted, computed, onBeforeUnmount, reactive, ref, defineProps, watch} from 'vue'
+import { Book as BookInterface } from "@/types/model/Book";
 import { BookTestAnswer}  from "@/types/index";
 import { BookTestQuestion } from "@/types/index";
 import { BookTest } from "@/types/index";
 import { BookCollection } from "@/types/index";
+import {Order} from "@/services/BooksApiClient";
 import { db } from "@/main"
-import { collection,doc } from '@firebase/firestore'
+import {bookCollectionsRef} from '@/main'
+import { collection,doc, query, where } from '@firebase/firestore'
 import router from '@/router/index'
 
 const props = defineProps<{
@@ -227,6 +230,7 @@ const authStore = useAuthStore()
 const booksStore = useBooksStore()
 const bookCollectionsStore = useBookCollectionsStore()
 
+
 const newTestRef = doc(collection(db, "book_tests"))
 let newQuestionRef = doc(collection(db, "test_questions"))
 
@@ -236,10 +240,36 @@ const showQuestionInput = ref(false)
 const editQuestionState = ref<Record<string, boolean>>({})
 
 
-//const collectionPic = ref<BookCollection | undefined>(bookCollectionsStore.bookCollections.find(collection => collection.id === collectionIdToTest.value).thumbnail)
-const collectionIdToTest = ref<string | undefined>(bookTestsStore.tests.find(test => test.id === props.testId)?.book_collection_id) 
+//const collectionPic = ref<BookCollection | undefined>(bookCollectionsStore.bookCollections.find(collection => collection.id === collectionNameToTest.value).thumbnail)
+const collectionNameToTest = ref<string | undefined>(bookTestsStore.tests.find(test => test.id === props.testId)?.book_collection_id) 
+
 const testName = ref<string | undefined>(bookTestsStore.tests.find(test => test.id === props.testId)?.name)
 
+const selectedCollectionBookIds = ref(bookCollectionsStore.bookCollections.find(collection => collection.title === collectionNameToTest.value)?.books ?? [])
+const selectedCollectionBooks = reactive<{ title: string; id: string; }[]>([])
+//nefunguje!!
+const selectedCollectionBooksNames = async() => {(await booksStore.books.forEach(book => {
+    console.log('log')
+    if(selectedCollectionBookIds.value.includes(book.id)){
+        const elem = {title: book.title, id: book.id}
+        console.log(elem)
+        selectedCollectionBooks.push(elem)
+    }
+}))}
+selectedCollectionBooksNames()
+
+watch(collectionNameToTest, () =>  {
+    selectedCollectionBookIds.value = bookCollectionsStore.bookCollections.find(collection => collection.title === collectionNameToTest.value)?.books ?? []
+    selectedCollectionBooks.splice(0, selectedCollectionBooks.length)
+    bookTestsStore.testQuestions.map(q => q.book_id = '')
+    booksStore.books.forEach(book => {
+    if(selectedCollectionBookIds.value.includes(book.id)){
+        const elem = {title: book.title, id: book.id}
+        console.log(elem)
+        selectedCollectionBooks.push(elem)
+    }
+})
+})
 const collectionSelected = ref(false)
 const testNameSet = ref(false)
 let alert = ref(false)
@@ -362,7 +392,7 @@ const saveTest = async () => {
         name: testName.value,
         is_generated: false,
         user_id: authStore.user.id,
-        book_collection_id: collectionIdToTest.value,
+        book_collection_id: collectionNameToTest.value,
     }
     
     await bookTestsStore.testAnswers.forEach(a => {
@@ -378,7 +408,7 @@ const saveTest = async () => {
         await bookTestsStore.addQuestionsToTest(newQuestions.map(q => (q.test_id = newTestRef.id, q)), questionToRef)
     } else {
         await bookTestsStore.updateTestName(props.testId, testName.value)
-        await bookTestsStore.updateTestCollectionId(props.testId, collectionIdToTest.value)
+        await bookTestsStore.updateTestCollectionId(props.testId, collectionNameToTest.value)
         await bookTestsStore.addQuestionsToTest(newQuestions.map(q => (q.test_id = props.testId, q)), questionToRef)
     }
     await bookTestsStore.updateQuestionsAndAnswers()
@@ -388,7 +418,7 @@ const saveTest = async () => {
 
 
 const openDialog = () => {
-    if(collectionIdToTest.value === undefined){
+    if(collectionNameToTest.value === undefined){
         collectionSelected.value = true
         alert.value = true
     } else{
@@ -409,16 +439,20 @@ const getBookOnHover = async (bookId: string) => {
         if(book){
             hoveredBook.value = book
         }
-        console.log('book', hoveredBook)
     } else{
         hoveredBook.value = null
     }
 }
 
+const q = query(bookCollectionsRef, where("user_id", "==", authStore.user.id))
+
 onMounted(async () => {
     await bookTestsStore.testQuestions.splice(0, bookTestsStore.testQuestions.length)
     await bookTestsStore.testAnswers.splice(0, bookTestsStore.testAnswers.length)
     await bookCollectionsStore.getBookCollections(authStore.user.id)
+    await booksStore.fetchBooks('*', Order.RELEVANCE)
+    await bookCollectionsStore.getBookCollections(authStore.user.id)
+
     if(props.testId !== 'new'){
         await bookTestsStore.getAllTests(authStore.user.id)
         await bookTestsStore.getAllQuestionsByTestID(props.testId)
