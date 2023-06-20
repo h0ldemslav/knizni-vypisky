@@ -28,8 +28,10 @@
             <section class="desc-section">
                 <h3>Informace o knize</h3>
                 <ul>
-                    <li><strong>{{ book.isbn[0].type }}</strong>{{ book.isbn[0].value }}</li>
-                    <li><strong>{{ book.isbn[1].type }}</strong>{{ book.isbn[1].value }}</li>
+                    <li v-if="book.isbn.length > 0" v-for="isbn in book.isbn">
+                      <strong>{{isbn.type}}</strong>
+                      {{ isbn.value}}
+                    </li>
                     <li><strong>Vydavatel</strong>{{ book.publisher ? book.publisher : "Neznamý vydavatel"}}</li>
                     <li><strong>Vydáno</strong>{{ book.publishedDate }}</li>
                     <li><strong>Počet stran</strong>{{ book.pageCount ? book.pageCount : "-" }}</li>
@@ -157,7 +159,7 @@
 <script lang="ts" setup>
     import { useBooksStore } from '@/stores/books'
     import { onMounted, ref, reactive } from 'vue'
-    import { Book } from '@/model/Book'
+    import { Book } from '@/types/model/Book'
     import { BookCollection, BookLanguage, NoteField } from '@/types'
     import { useAuthStore } from '@/stores/auth'
     import { useBookNotesStore } from '@/stores/bookNotes'

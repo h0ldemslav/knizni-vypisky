@@ -1,6 +1,7 @@
 describe("books-spec", { env: { 
   testEmail: "i.am.the.best.20@gmail.com", 
   testPassword: "secret_password",
+  testCollectionName: "Moje Kolekce",
   localHost: "http://localhost:3000/"
 } }, () => {
 
@@ -44,7 +45,6 @@ describe("books-spec", { env: {
   it("create-collection-and-add-book", () => {
     const bookName = "Moby Dick"
     const collectionEndpoint = "kolekce"
-    const collectionName = "Moje Kolekce"
 
     cy.logout(Cypress.env("localHost")) // for clearing Firebase auth
 
@@ -56,7 +56,7 @@ describe("books-spec", { env: {
 
     cy.get("div .btn").click()
 
-    cy.get("#title-textfield").type(collectionName)
+    cy.get("#title-textfield").type(Cypress.env("testCollectionName"))
 
     cy.get("button[type='submit']").click()
 
@@ -86,7 +86,55 @@ describe("books-spec", { env: {
     cy.wait(5000) // waiting for Firebase data
 
     cy.get(".collections-select").click()
-    cy.get("div.v-list-item-title").parent().parent().should("contain", collectionName)
+    cy.get("div.v-list-item-title").parent().parent().should("contain", Cypress.env("testCollectionName"))
   })
 
+    it("edit-collection", () => {
+        const updatedExtraTitle = "222"
+
+        cy.logout(Cypress.env("localHost")) // for clearing Firebase auth
+
+        cy.login(Cypress.env("localHost") + "login", Cypress.env("testEmail"), Cypress.env("testPassword"))
+
+        cy.wait(3000) // waiting for user authentication
+
+        cy.visit(Cypress.env("localHost") + "kolekce")
+
+        cy.wait(5000) // waiting for Firebase add operation
+
+        cy.get(".collections a:first-child").click()
+
+        cy.get("#editCollection").click()
+
+        cy.get("#title-textfield").type(updatedExtraTitle)
+
+        cy.get("button[type='submit']").click()
+
+        cy.wait(2000)
+
+        cy.get("h1:first-child").should("contain", Cypress.env("testCollectionName") + updatedExtraTitle)
+    })
+
+    it("delete-collection", () => {
+        cy.logout(Cypress.env("localHost")) // for clearing Firebase auth
+
+        cy.login(Cypress.env("localHost") + "login", Cypress.env("testEmail"), Cypress.env("testPassword"))
+
+        cy.wait(3000) // waiting for user authentication
+
+        cy.visit(Cypress.env("localHost") + "kolekce")
+
+        cy.wait(5000) // waiting for Firebase add operation
+
+        cy.get(".collections a:first-child").click()
+
+        cy.wait(2000)
+
+        cy.get("#deleteCollection").click()
+
+        cy.wait(2000)
+
+        cy.url().should("eq", Cypress.env("localHost") + "kolekce")
+        cy.get("#noCollectionMessage").should("be.visible")
+    })
 })

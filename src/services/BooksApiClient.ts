@@ -1,9 +1,9 @@
-import {Book} from "@/model/Book";
+import {Book} from "@/types/model/Book";
 import axios from "axios";
 import Config from "@/config";
-import {BookRating} from "@/model/BookRating";
-import {BookImage} from "@/model/BookImage";
-import {ISBN, IsbnType, RawISBN} from "@/model/ISBN";
+import {BookRating} from "@/types/model/BookRating";
+import {BookImage} from "@/types/model/BookImage";
+import {ISBN, IsbnType, RawISBN} from "@/types/model/ISBN";
 
 export enum Order {
     NEWEST = "newest",

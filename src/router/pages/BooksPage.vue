@@ -24,10 +24,24 @@
     </div>
   </Header>
   <main>
-    <section class="books">
+    <section class="d-flex justify-center status-section"
+         v-if="booksStore.isLoadingSearchedBooks || !booksStore.isLoadingSearchedBooks && booksStore.books.size == 0">
+      <v-progress-circular
+          v-if="booksStore.isLoadingSearchedBooks"
+          color="primary"
+          indeterminate
+          :size="68"
+          :width="5"/>
+
+      <h2 class="ma-15" v-else>
+        Nebyly nalezeny žádné knihy.
+      </h2>
+    </section>
+
+    <section class="books" v-if="!booksStore.isLoadingSearchedBooks && booksStore.books.size > 0">
       <BookCard v-for="book in booksStore.books.values()"
-            :book="book"
-            :key="book.id"/>
+                :book="book"
+                :key="book.id"/>
     </section>
   </main>
 
@@ -95,6 +109,11 @@ h1 {
   margin: 4rem auto auto auto;
   justify-content: center;
   padding-bottom: 4rem;
+}
+
+.status-section {
+  margin-top: 5rem;
+  margin-bottom: 25rem;
 }
 
 @media only screen and (max-width: 992px) {

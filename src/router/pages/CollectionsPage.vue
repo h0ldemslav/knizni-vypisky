@@ -16,7 +16,7 @@
                   color="primary"
                   prepend-icon="mdi-book-plus-multiple-outline"
                   small
-                  @click="state.dialogVisible = true">
+                  @click="state.isDialogVisible = true">
                 Vytvořit kolekci
               </v-btn>
             </div>
@@ -30,19 +30,31 @@
   </Header>
 
   <main>
-    <v-container fluid class="pa-8">
+    <div class="d-flex justify-center ma-6" v-if="state.isLoadingCollections">
+      <v-progress-circular
+          color="primary"
+          indeterminate
+          :size="68"
+          :width="5"/>
+    </div>
+
+    <v-container fluid class="pa-8 collections" v-else>
       <v-row class="justify-center">
-        <v-col cols="12" sm="6" md="4" lg="3" v-for="collection in bookCollectionsStore.bookCollections"
-               :key="collection.id">
+        <v-col v-if="bookCollectionsStore.bookCollections.length > 0" cols="12" sm="6" md="4" lg="3"
+               v-for="collection in bookCollectionsStore.bookCollections" :key="collection.id">
           <Collection :collection="collection"/>
         </v-col>
+
+        <div v-else>
+          <h2 id="noCollectionMessage" class="mt-16">Zatím nemáte žádné kolekce</h2>
+        </div>
       </v-row>
     </v-container>
   </main>
 
-  <AddCollectionDialog
-      :dialog-visible="state.dialogVisible"
-      @update:dialog-visible="isVisible => state.dialogVisible = isVisible"/>
+  <AddEditCollectionDialog
+      :dialog-visible="state.isDialogVisible"
+      @update:dialog-visible="isVisible => state.isDialogVisible = isVisible"/>
 </template>
 
 <script lang="ts" setup>
@@ -54,18 +66,25 @@ import {bookCollectionsRef} from '@/main'
 import {query, where, onSnapshot} from '@firebase/firestore'
 import {BookCollection} from '@/types'
 import Collection from "@/components/data_templates/CollectionCard.vue";
-import AddCollectionDialog from "@/components/AddCollectionDialog.vue";
+import AddEditCollectionDialog from "@/components/AddEditCollectionDialog.vue";
 
+// component
+const state = reactive({
+  isDialogVisible: false,
+  isLoadingCollections: true
+})
+
+// stores
 const authStore = useAuthStore()
 const bookCollectionsStore = useBookCollectionsStore()
 
-const state = reactive({
-  dialogVisible: false
-})
-
+// data
 const q = query(bookCollectionsRef, where("user_id", "==", authStore.user.id))
 
+// hooks
 onMounted(() => {
+  state.isLoadingCollections = true
+
   onSnapshot(q, (snapshot) => {
     const queriedBookCollections: Array<BookCollection> = Array()
 
@@ -83,6 +102,8 @@ onMounted(() => {
 
     bookCollectionsStore.bookCollections.length = 0
     bookCollectionsStore.bookCollections.push(...queriedBookCollections)
+
+    state.isLoadingCollections = false
   })
 })
 </script>

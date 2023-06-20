@@ -56,14 +56,18 @@ watch(
 
 // data
 const links: Array<Link> = [
-  {title: "Knihy", linkName: "books", symbol: "mdi-book-open-page-variant"},
-  {title: "Kolekce", linkName: "collections", symbol: "mdi-layers-triple"},
-  {title: "Testy", linkName: "tests", symbol: "mdi-school"}
+  {title: "Knihy", linkName: "books", symbol: "mdi-book-open-page-variant", path: "/"},
+  {title: "Kolekce", linkName: "collections", symbol: "mdi-layers-triple", path: "/kolekce"},
+  {title: "Testy", linkName: "tests", symbol: "mdi-school", path: "/testy"}
 ]
 
 // methods
 const isCurrentLink = (link: Link) => {
-  return router.currentRoute.value.name === link.linkName
+  if (link.path === "/") {
+    return router.currentRoute.value.path === "/" || router.currentRoute.value.path.startsWith("/detail-knihy")
+  } else {
+    return router.currentRoute.value.path.startsWith(link.path)
+  }
 }
 
 const onBurgerClick = (isActive: boolean) => {
@@ -94,7 +98,7 @@ nav {
   color: #E4573D !important;
 }
 
-@media only screen and (max-width: 992px){
+@media only screen and (max-width: 992px) {
   nav {
     padding: 0.8rem 2.5rem;
   }

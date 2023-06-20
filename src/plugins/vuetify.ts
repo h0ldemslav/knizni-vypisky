@@ -1,5 +1,6 @@
 import {createVuetify, ThemeDefinition} from 'vuetify'
 import 'vuetify/dist/vuetify.min.css' // import Vuetify styles
+import {VDataTable} from 'vuetify/labs/VDataTable'
 
 
 const primaryTheme: ThemeDefinition = {
@@ -22,5 +23,8 @@ export default createVuetify({
         themes: {
             primaryTheme
         }
+    },
+    components: {
+        VDataTable
     }
 })
