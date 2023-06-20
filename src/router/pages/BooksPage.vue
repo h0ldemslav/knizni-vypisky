@@ -70,9 +70,9 @@ const searchBooks = async () => {
   }
 }
 
-onMounted(() => {
-  booksStore.fetchBooks("*", Order.RELEVANCE);
-  booksStore.fetchNewestBooks()
+onMounted(async () => {
+  await booksStore.fetchBooks("*", Order.RELEVANCE);
+  await booksStore.fetchNewestBooks()
 });
 </script>
 

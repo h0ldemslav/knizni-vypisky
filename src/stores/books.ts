@@ -1,6 +1,6 @@
 import {defineStore} from "pinia";
 import {reactive, ref} from "vue";
-import {Book} from "@/model/Book";
+import {Book} from "@/types/model/Book";
 import {BookResponseDTO, BooksApiClient, Order} from "@/services/BooksApiClient";
 import {AxiosError} from "axios";
 
