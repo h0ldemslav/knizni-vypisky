@@ -11,8 +11,7 @@ import {
     arrayUnion,
     query,
     where,
-    getDocs,
-    getDoc
+    getDocs
 } from '@firebase/firestore'
 
 export const useBookCollectionsStore = defineStore("bookCols", () => {
@@ -53,15 +52,6 @@ export const useBookCollectionsStore = defineStore("bookCols", () => {
 
         }
         
-    }
-
-    const getBookCollectionById = async (collection_id: string, user_id: string | undefined) => {
-        const docRef = doc(db, "book_collections", collection_id)
-        const snapshot = await getDoc(docRef)
-
-        if (snapshot.exists() && snapshot.data().user_id == user_id) {
-            setSnapshotResultToCurrentBookCollection(snapshot)
-        }
     }
 
     const createBookCollection = async (col: BookCollection) => {
@@ -112,13 +102,6 @@ export const useBookCollectionsStore = defineStore("bookCols", () => {
         })
     }
 
-    const setSnapshotResultToCurrentBookCollection = (snapshot: any) => {
-        currentBookCollection.id = snapshot.id
-        currentBookCollection.title = snapshot.data().title
-        currentBookCollection.books = snapshot.data().books
-        currentBookCollection.user_id = snapshot.data().user_id
-    }
-
 
     return {
         bookCollections,
@@ -129,8 +112,7 @@ export const useBookCollectionsStore = defineStore("bookCols", () => {
         createBookCollection,
         updateBookCollectionTitle,
         removeBookCollection,
-        addBook,
-        removeBook,
-        getBookCollectionById
+        addBook, 
+        removeBook 
     }
 })

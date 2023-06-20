@@ -10,8 +10,20 @@
                     </v-col>
                 </div>    
             </v-col>
-            <v-col cols="12" sm="5" class="hidden-sm-and-down">
-                    x
+            <v-col cols="12" sm="4" class="hidden-sm-and-down">
+                    <v-card width="250px" class="">
+                        <v-card-title class="d-flex justify-center">
+                        <v-card max-width="300x" class="ma-2 mt-1 pa-1">
+                            <h3 class="text-center">{{ collection.title }}</h3>
+                        </v-card>
+                        </v-card-title>
+                        <v-img
+                        class="mb-3"
+                        :src="collection.image"
+                        lazy-src=""
+                        height="200px"
+                        :cover="false"/>
+                    </v-card>
             </v-col>
         </v-row>
     </Header>
@@ -120,17 +132,25 @@ import { useBookTestsStore } from "@/stores/bookTests";
 import { useAuthStore } from '@/stores/auth'
 import { useBooksStore } from '@/stores/books'
 import { onMounted, onBeforeUnmount , computed, reactive, ref, defineProps} from 'vue'
-import { Book as BookInterface } from "@/types/model/Book";
+import { Book as BookInterface } from "@/types/model/Book"
+import { useBookCollectionsStore } from '@/stores/bookCollections'
+import {DEFAULT_COLLECTION_IMAGE, getCollectionImage, getCollectionLabel} from "@/utils/bookCollectionUtils";
 import router from '@/router/index'
+import { BookCollection } from "@/types";
 
 
 const bookTestsStore = useBookTestsStore()
 const authStore = useAuthStore()
 const booksStore = useBooksStore()
+const collectionStore = useBookCollectionsStore()
 
 const props = defineProps<{bookTestId: string}>()
 
 const testName = ref<string | undefined>(bookTestsStore.tests.find(test => test.id === props.bookTestId)?.name)
+const collection = reactive({
+  image: '',
+  title: ''
+})
 
 const dialog = reactive({
     value: false
@@ -179,7 +199,13 @@ onMounted(async () => {
     await bookTestsStore.getAllTests(authStore.user.id)
     await bookTestsStore.getAllQuestionsByTestID(props.bookTestId)
     await bookTestsStore.getAllAnswers()
+    await collectionStore.getBookCollections(authStore.user.id)
 
+    const testCollection: BookCollection | undefined = collectionStore.bookCollections.find(collection => collection.title === (bookTestsStore.tests.find(test => test.id === props.bookTestId)?.book_collection_id))
+    if(testCollection){
+        collection.image = await getCollectionImage(testCollection)
+        collection.title = testCollection.title
+    }
     bookTestsStore.testQuestions.sort((a, b) => {
         if (a.book_id < b.book_id) return -1;
         if (a.book_id > b.book_id) return 1;

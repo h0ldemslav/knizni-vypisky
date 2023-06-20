@@ -1,6 +1,6 @@
 import {defineStore} from "pinia";
 import {reactive, ref} from "vue";
-import {Book} from "@/types/model/Book";
+import {Book} from "@/model/Book";
 import {BookResponseDTO, BooksApiClient, Order} from "@/services/BooksApiClient";
 import {AxiosError} from "axios";
 
@@ -99,6 +99,7 @@ export const useBooksStore = defineStore("books", () => {
 
         fetchBooks,
         fetchNewestBooks,
+        fetchBookById,
         getBookById
     }
 })

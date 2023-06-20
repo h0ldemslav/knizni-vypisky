@@ -20,7 +20,7 @@ export const getCollectionImage = async (collection: BookCollection) => {
     }
 }
 
-export const getCollectionLabel = (collectionSize: Number) => {
+export const getCollectionLabel = (collectionSize: number) => {
     if (collectionSize == 0) {
         return "knih"
     } else if (collectionSize == 1) {

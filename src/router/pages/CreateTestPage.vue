@@ -214,7 +214,6 @@ import { Book as BookInterface } from "@/types/model/Book";
 import { BookTestAnswer}  from "@/types/index";
 import { BookTestQuestion } from "@/types/index";
 import { BookTest } from "@/types/index";
-import { BookCollection } from "@/types/index";
 import {Order} from "@/services/BooksApiClient";
 import { db } from "@/main"
 import {bookCollectionsRef} from '@/main'
@@ -239,24 +238,12 @@ const questionToRef: Array<any> = []
 const showQuestionInput = ref(false)
 const editQuestionState = ref<Record<string, boolean>>({})
 
-
-//const collectionPic = ref<BookCollection | undefined>(bookCollectionsStore.bookCollections.find(collection => collection.id === collectionNameToTest.value).thumbnail)
 const collectionNameToTest = ref<string | undefined>(bookTestsStore.tests.find(test => test.id === props.testId)?.book_collection_id) 
 
 const testName = ref<string | undefined>(bookTestsStore.tests.find(test => test.id === props.testId)?.name)
 
-const selectedCollectionBookIds = ref(bookCollectionsStore.bookCollections.find(collection => collection.title === collectionNameToTest.value)?.books ?? [])
+let selectedCollectionBookIds = ref<string[]>([])
 const selectedCollectionBooks = reactive<{ title: string; id: string; }[]>([])
-//nefunguje!!
-const selectedCollectionBooksNames = async() => {(await booksStore.books.forEach(book => {
-    console.log('log')
-    if(selectedCollectionBookIds.value.includes(book.id)){
-        const elem = {title: book.title, id: book.id}
-        console.log(elem)
-        selectedCollectionBooks.push(elem)
-    }
-}))}
-selectedCollectionBooksNames()
 
 watch(collectionNameToTest, () =>  {
     selectedCollectionBookIds.value = bookCollectionsStore.bookCollections.find(collection => collection.title === collectionNameToTest.value)?.books ?? []
@@ -444,8 +431,6 @@ const getBookOnHover = async (bookId: string) => {
     }
 }
 
-const q = query(bookCollectionsRef, where("user_id", "==", authStore.user.id))
-
 onMounted(async () => {
     await bookTestsStore.testQuestions.splice(0, bookTestsStore.testQuestions.length)
     await bookTestsStore.testAnswers.splice(0, bookTestsStore.testAnswers.length)
@@ -464,6 +449,14 @@ onMounted(async () => {
             }
         })
     } 
+    selectedCollectionBookIds = ref(bookCollectionsStore.bookCollections.find(collection => collection.title === collectionNameToTest.value)?.books ?? [])
+    await booksStore.books.forEach(book => {
+    if(selectedCollectionBookIds.value.includes(book.id)){
+        const elem = {title: book.title, id: book.id}
+        console.log(elem)
+        selectedCollectionBooks.push(elem)
+    }
+})
 })
 
 onBeforeUnmount(async() => {
