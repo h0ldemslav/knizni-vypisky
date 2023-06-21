@@ -35,6 +35,8 @@ export const useAuthStore = defineStore("auth", () => {
             }).catch((error) => {
                 if (error.code === "auth/email-already-in-use") {
                     errorMessage.value = "Zadaný email již existuje"
+                } else if (error.code === "auth/weak-password") {
+                    errorMessage.value = "Heslo musí mít alespoň 6 znaků"
                 } else {
                     // Wild card
                     console.log(error)

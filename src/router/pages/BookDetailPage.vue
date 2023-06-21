@@ -43,6 +43,7 @@
 
                     <v-select
                         variant="solo"
+                        no-data-text="Nemáte žádné kolekce"
                         v-model="bookCollectionsModel"
                         :items="bookCollectionsStore.bookCollections"
                         item-title="title"

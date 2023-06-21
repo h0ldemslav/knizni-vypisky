@@ -12,7 +12,7 @@
                 </div>    
             </v-col>
             <v-col cols="12" sm="5">
-                <v-select class="ml-6 mr-6 mt-sm-16"
+                <v-select class="collections-select ml-6 mr-6 mt-sm-16"
                 v-model="collectionNameToTest"
                 label="Vyber kolekci k testu"
                 :items="bookCollectionsStore.bookCollections"
@@ -91,9 +91,11 @@
 
 
         <div id="newQuestion" class="ml-sm-14  ml-6 mt-4">
-            <v-text-field class="mr-10" label="Nová otázka" 
-            v-model="newQuestion.text" 
-            variant="underlined"
+            <v-text-field 
+                class="new-question-textfield mr-10"
+                label="Nová otázka" 
+                v-model="newQuestion.text" 
+                variant="underlined"
             >
             </v-text-field>
             <v-radio-group 
@@ -102,7 +104,7 @@
                 :value="answer.id.toString()"
                 :label = answer.text
                 color="primary"
-                class="pr-3">
+                class="pr-3 is-correct-answer-radio">
                     <template v-slot:label >
                         <div class="ml-3" >{{ answer.text }}</div>
                     </template>
@@ -114,24 +116,24 @@
                     <v-radio  v-if="showQuestionInput"  
                     color="primary"
                     :value="newAnswer.is_correct"
-                    class="ml-sm-3 ml-0">
+                    class="ml-sm-3 ml-0 is-correct-answer-radio">
                         <template v-slot:label >
-                            <v-text-field  label="Nová odpověď" v-model="newAnswer.text" variant="underlined"></v-text-field>
+                            <v-text-field class="new-answer-textfield" label="Nová odpověď" v-model="newAnswer.text" variant="underlined"></v-text-field>
                         </template>
                         
                     </v-radio>
-                    <v-icon icon="mdi-plus" class="clickabeIcon mt-3" v-if="!showQuestionInput" @click="showQuestionInput=true"/>
+                    <v-icon id="add-answer-icon" icon="mdi-plus" class="clickabeIcon mt-3" v-if="!showQuestionInput" @click="showQuestionInput=true"/>
                 </v-col>
                 <v-col cols="2" sm="2">
-                    <v-btn v-if="showQuestionInput" 
+                    <v-btn class="save-answer-button" v-if="showQuestionInput" 
                         style=" color: #E4573D;" :disabled="newAnswer.text.length ===0" @click="saveAnswer">Uložit</v-btn>
                 </v-col>
                 </v-row>
             </v-radio-group>
-            <v-btn color="primary" class="mt-5 mb-10" :disabled="newQuestion.text.length ===0" @click="saveQuestion">Uložit otázku</v-btn>
+            <v-btn id="save-question-button" color="primary" class="mt-5 mb-10" :disabled="newQuestion.text.length ===0" @click="saveQuestion">Uložit otázku</v-btn>
         </div>
 
-        <v-btn color="primary" class="ml-sm-16 ml-3 mt-4" @click="openDialog">Uložit test
+        <v-btn id="save-test-button" color="primary" class="ml-sm-16 ml-3 mt-4" @click="openDialog">Uložit test
         </v-btn>
             <v-dialog
                 v-model="dialog.saveDialog"
@@ -151,10 +153,10 @@
                             title="Pozor!"
                             text="Musíš zadat název testu"
                         ></v-alert>
-                        <v-text-field label="Název testu" v-model="testName" variant="underlined"></v-text-field>
+                        <v-text-field id="new-test-name" label="Název testu" v-model="testName" variant="underlined"></v-text-field>
                     </v-card-text>
                     <v-card-actions>
-                        <v-btn color="primary" class="pt-0" block @click="saveTest">Uložit test</v-btn>
+                        <v-btn id="save-new-test" color="primary" class="pt-0" block @click="saveTest">Uložit test</v-btn>
                     </v-card-actions>
                 </v-card>
             </v-dialog>
