@@ -9,7 +9,7 @@
       >
         <v-tab value="generated_tests">Vygenerované testy</v-tab>
         <v-tab value="created_tests">Vytvořené testy</v-tab>
-        <v-tab value="passed_tests">Absolvované testy</v-tab>
+        <v-tab class="passed_tests" value="passed_tests">Absolvované testy</v-tab>
       </v-tabs>
 
       <v-card-text>

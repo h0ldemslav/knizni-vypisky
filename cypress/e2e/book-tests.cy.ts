@@ -58,6 +58,7 @@ describe("book-tests spec", () => {
 
         cy.visit(Cypress.env("env").localHost + testEndPoint + "/vyber")
 
-        cy.get(".test-id:first-of-type").should("contain", Cypress.env("env").nameOfTest)
+        cy.get('.passed_tests').click()
+        cy.get("td:first-of-type").should("contain", Cypress.env("env").nameOfTest)
     })
 })
