@@ -108,7 +108,6 @@
                   v-for="test in bookTestsStore.passedTests"
                   :key="test.id"
               >
-                {{ test }}
                 <td>
                   {{ bookTestsStore.tests.filter(t => t.id === test.test_id)[0].name }}
                 </td>
