@@ -56,7 +56,7 @@ export interface BookTestPassed {
     test_id: string
     user_id: string
     selected_answers_ids: string[]
-    created_at: Timestamp;
+    created_at: Timestamp | null;
 }
 
 // Book detail

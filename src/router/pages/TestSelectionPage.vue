@@ -108,6 +108,7 @@
                   v-for="test in bookTestsStore.passedTests"
                   :key="test.id"
               >
+                {{ test }}
                 <td>
                   {{ bookTestsStore.tests.filter(t => t.id === test.test_id)[0].name }}
                 </td>
@@ -115,7 +116,10 @@
                   {{bookTestsStore.tests.filter(t => t.id === test.test_id)[0].book_collection_id }}
                 </td>
                 <td>
-                  {{ Date(test.created_at.seconds*100) }}
+                  {{ new Date(test.created_at.seconds*1000).getDate() }}.
+                  {{ new Date(test.created_at.seconds*1000).getMonth() }}.
+                  {{ new Date(test.created_at.seconds*1000).getFullYear() }}<br>
+                  {{ new Date(test.created_at.seconds*1000).getHours() }}:{{ new Date(test.created_at.seconds*1000).getMinutes() }}
                 </td>
                 <td>
                   uspesnost
