@@ -1,7 +1,6 @@
 <template>
-
   <main>
-
+<!--    todo prejmenovat na TestSelectionPage-->
     <v-card
         class="ma-5">
       <v-tabs
@@ -11,11 +10,12 @@
       >
         <v-tab value="generated_tests">Vygenerované testy</v-tab>
         <v-tab value="created_tests">Vytvořené testy</v-tab>
-        <v-tab value="completed_tests">Absolvované testy</v-tab>
+        <v-tab value="passed_tests">Absolvované testy</v-tab>
       </v-tabs>
 
       <v-card-text>
         <v-window v-model="tab" class="ma-5 pa-1">
+<!--          ----------------------------------------------------------------------------------------------->
           <v-window-item value="generated_tests">
             <v-table v-if="bookTestsStore.generatedTests.length !== 0">
               <thead>
@@ -36,6 +36,8 @@
               Žádné vygenerované testy
             </div>
           </v-window-item>
+
+ <!--          ----------------------------------------------------------------------------------------------->
 
           <v-window-item value="created_tests">
             <v-table v-if="bookTestsStore.tests.length !== 0">
@@ -58,7 +60,6 @@
                   :key="test.name"
               >
                 <td><router-link :to="{name: 'take-test', params: {bookTestId: test.id, testPreview: false}}">
-<!--                  // todo add , testPreview: false-->
                   {{ test.name }}
                 </router-link></td>
                 <td>{{ test.book_collection_id }}</td>
@@ -92,19 +93,30 @@
 <!--              </v-btn>-->
 <!--            </div>-->
           </v-window-item>
+ <!--          ----------------------------------------------------------------------------------------------->
+          <v-window-item value="passed_tests">
+<!--            -->
+<!--            test questions-->
+<!--            <div v-for="test in bookTestsStore.testQuestions">-->
+<!--              {{ test.id }} , {{ test.text }}, {{ test }}-->
+<!--            </div>-->
 
-          <v-window-item value="completed_tests">
-            test questions
-            <div v-for="test in bookTestsStore.testQuestions">
-              {{ test.id }} , {{ test.text }}, {{ test }}
-            </div>
+<!--            answers-->
+<!--            <div v-for="ans in bookTestsStore.testAnswers">-->
+<!--              {{ ans }}-->
+<!--            </div>-->
 
-            <div v-for="ans in bookTestsStore.testAnswers">
-              {{ ans }}
-            </div>
+<!--            tests {{ bookTestsStore.tests.length}}-->
+<!--            <div v-for="test in bookTestsStore.tests">-->
+<!--              {{ test }}-->
+<!--            </div>-->
 
-            <v-table v-if="bookTestsStore.tests.length !== 0">
-<!--              todo completedTests-->
+<!--            passed {{ bookTestsStore.passedTests.length}}-->
+<!--            <div v-for="test in bookTestsStore.passedTests">-->
+<!--              {{ test }}-->
+<!--            </div>-->
+
+            <v-table v-if="bookTestsStore.passedTests.length !== 0">
               <thead>
               <tr>
                 <th class="text-left">
@@ -113,6 +125,12 @@
                 <th class="text-left">
                   Kolekce
                 </th>
+                <th class="text-left">
+                  Datum
+                </th>
+                <th class="text-left">
+                  Úspěšnost
+                </th>
                 <th class="text-right">
                   Akce
                 </th>
@@ -120,21 +138,25 @@
               </thead>
               <tbody>
               <tr
-                  v-for="test in bookTestsStore.tests"
-                  :key="test.name"
+                  v-for="test in bookTestsStore.passedTests"
+                  :key="test.id"
               >
-                <td><router-link :to="{name: 'take-test', params: {bookTestId: test.id, testPreview: true}}">
-<!--                  //todo testPreview: true,-->
-                  {{ test.name }}
-                </router-link></td>
-                <td>{{ test.book_collection_id }}</td>
+                <td>
+                  {{ test.id }}
+                </td>
+                <td>
+                  {{ test.book_collection_id }}
+                </td>
+                <td>
+                  {{ test.created_at.seconds }}
+                </td>
+                <td>
+                  uspesnost
+                </td>
                 <td class="text-right">
-                  <router-link :to="{name: 'test-creation', params: {testId: test.id, testPreview: false}}">
-                    <v-btn color="primary">Upravit</v-btn>
+                  <router-link :to="{name: 'take-test', params: {bookTestId: test.test_id, testPreview: true}}">
+                    <v-btn color="primary">Náhled</v-btn>
                   </router-link>
-                  <v-btn color="primary" @click="deleteTest(test.id)">
-                    Smazat
-                  </v-btn>
                 </td>
               </tr>
               </tbody>
@@ -185,8 +207,7 @@ onMounted(async () => {
   await bookTestsStore.getGeneratedTests(authStore.user.id)
   await bookTestsStore.getAllQuestionsByTestID("EKzub6NGeAdDTIbxWFMT")
   await bookTestsStore.getAllAnswers()
-  await bookTestsStore.getAllQuestionsByTestID("MeTFsVuttQgkaNUGtAtm")
-  await bookTestsStore.getAllAnswers()
+  await bookTestsStore.getAllPassedTests(authStore.user.id)
 
   // generatedTests = bookTestsStore.tests.filter(t => t.is_generated == true)
 })

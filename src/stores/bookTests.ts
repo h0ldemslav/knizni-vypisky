@@ -1,4 +1,4 @@
-import { BookTest, BookTestQuestion, BookTestAnswer } from '@/types'
+import { BookTest, BookTestQuestion, BookTestAnswer, BookTestPassed } from '@/types'
 import { defineStore } from 'pinia'
 import { reactive } from 'vue'
 import { db } from '@/main'
@@ -27,7 +27,7 @@ export const useBookTestsStore = defineStore("bookTst", () => {
         test_id: "",
         user_id: "",
         created_at: Timestamp.now(),
-        selected_answers_ids: []
+        selected_answers_ids: ["AIhGq9qinsEYvbuwEUmx"] // todo Lucka delete to []
     })
     const passedTests = reactive<Array<BookTestPassed>>([])
 
@@ -35,6 +35,7 @@ export const useBookTestsStore = defineStore("bookTst", () => {
         // Batch allows to execute multiple operations together
         // https://firebase.google.com/docs/firestore/manage-data/transactions#batched-writes
         const {id, name, is_generated, user_id, book_collection_id} = test
+        console.log("test:", test)
 
         const batch = writeBatch(db)
         batch.set(newTestRef, {name, is_generated, user_id, book_collection_id})
@@ -45,6 +46,24 @@ export const useBookTestsStore = defineStore("bookTst", () => {
             is_generated: is_generated,
             user_id: user_id,
             book_collection_id: book_collection_id
+        })
+
+        await batch.commit()
+    }
+
+    const createPassedTest = async (test: BookTestPassed, newTestPassedRef: any) => {
+        const {id, test_id, user_id, selected_answers_ids, created_at} = test
+        console.log("test:", test)
+
+        const batch = writeBatch(db)
+        batch.set(newTestPassedRef, {test_id, user_id, selected_answers_ids, created_at})
+
+        passedTests.push({
+            id: newTestPassedRef.id,
+            test_id: test.test_id,
+            user_id: test.user_id,
+            selected_answers_ids: test.selected_answers_ids,
+            created_at: test.created_at
         })
 
         await batch.commit()
@@ -226,27 +245,6 @@ export const useBookTestsStore = defineStore("bookTst", () => {
         })
     }
 
-    const getCompletedTests = async (user_id: string | undefined) => {
-        const q = query(collection(db, "book_tests"),
-            where("user_id", "==", user_id),
-            where("is_generated", "==", true))
-        const snapshot = await getDocs(q)
-
-        generatedTests.length = 0
-
-        snapshot.docs.forEach((doc) => {
-            generatedTests.push(
-                {
-                    id: doc.id,
-                    name: doc.data().name,
-                    is_generated: doc.data().is_generated,
-                    user_id: doc.data().user_id,
-                    book_collection_id: doc.data().book_collection_id
-                }
-            )
-        })
-    }
-
     const getAllQuestionsByTestID = async (id: string) => {
         const q = query(collection(db, "test_questions"), where("test_id", "==", id))
         const snapshot = await getDocs(q)
@@ -292,23 +290,6 @@ export const useBookTestsStore = defineStore("bookTst", () => {
                 }
             )
         })
-    }
-
-    const createPassedTest = async (test: BookTestPassed, newTestPassedRef: any) => {
-        const {id, test_id, user_id, selected_answers_ids, created_at} = test
-
-        const batch = writeBatch(db)
-        batch.set(newTestPassedRef, {test_id, user_id, selected_answers_ids, created_at})
-
-        passedTests.push({
-            id: newTestPassedRef.id,
-            test_id: test.test_id,
-            user_id: test.user_id,
-            selected_answers_ids: test.selected_answers_ids,
-            created_at: test.created_at
-        })
-
-        await batch.commit()
     }
 
     const getAllPassedTests = async (user_id: string | undefined) => {

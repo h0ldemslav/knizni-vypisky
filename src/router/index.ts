@@ -78,7 +78,7 @@ const routes: RouteRecordRaw[] = [
 
     },
     {
-        path: "/testy/testy/:bookTestId",
+        path: "/testy/testy/:bookTestId/:testPreview",
         name: "take-test",
         component: () => import("@/router/pages/TakeTestPage.vue"),
         meta: {
