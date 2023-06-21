@@ -40,7 +40,7 @@
                 @mouseleave="getBookOnHover('')"
             >
               <v-radio
-                  v-for="answer in bookTestsStore.testAnswers.filter(answer => answer.question_id === question.id)"
+                  v-for="answer in bookTestsStore.testAnswers.filter(ans => ans.question_id === question.id)"
                   :key="answer.id"
                   :value="answer.id + ': ' + answer.is_correct"
                   color="primary"
@@ -48,8 +48,7 @@
                   :disabled="state.answersSend"
               >
                 <template v-slot:label>
-                  <div v-if="state.answersSend" strong
-                       :class="answer.is_correct ? 'text-success' : 'text-error'">
+                  <div v-if="state.answersSend" :class="answer.is_correct ? 'text-success' : 'text-error'">
                     {{ answer.text }}
                   </div>
                   <div v-else> {{ answer.text }}</div>
@@ -58,33 +57,13 @@
             </v-radio-group>
           </div>
 
-          <div v-else v-for="answer in bookTestsStore.testAnswers.filter(answer => answer.question_id === question.id)">
-            <!--            {{ bookTestsStore.currentPassedTest.selected_answers_ids }}-->
-<!--                        {{ answer }}-->
-            <div v-for="id in bookTestsStore.currentPassedTest.selected_answers_ids">
-              <!--              {{ id }}-->
-              <span v-if="answer.id === id" class="font-weight-bold">
-                ✓
-              </span>
-              <span v-else>
-                ✘
-              </span>
+          <div v-else v-for="answer in bookTestsStore.testAnswers.filter(ans => ans.question_id === question.id)">
+              <span v-if="bookTestsStore.currentPassedTest.selected_answers_ids.includes(answer.id)" class="font-italic"> ✓ </span>
               <span
-                  :class="answer.is_correct ? 'text-success' : 'text-error'">
-                <!--                  :class="answer.id === id ? 'text-blue-accent-1' : 'text-orange-accent-1'">-->
-                <!--            >&ndash;&gt;-->
-                <!--              -->
-                <!--            </div>-->
-                <!--            <div-->
-                <!--                :class=-->
-                <!--            "answer.is_correct ? 'text-success' : 'text-error'"-->
-                <!--            >-->
+                  :class="[answer.is_correct ? 'text-success' : 'text-error', bookTestsStore.currentPassedTest.selected_answers_ids.includes(answer.id) ? 'font-italic' : '' ]">
                 {{ answer.text }}
               </span>
-            </div>
-
           </div>
-
         </div>
 
         <v-btn v-if="!state.testPreview && !state.answersSend" color="primary" class="ml-16 mt-3"
@@ -269,18 +248,14 @@ const getBookOnHover = async (bookId: string) => {
 
 onMounted(async () => {
   await bookTestsStore.getAllTests(authStore.user.id)
-  await bookTestsStore.getAllQuestionsByTestID(props.bookTestId)
-  await bookTestsStore.getAllAnswers()
   await collectionStore.getBookCollections(authStore.user.id)
-
   await authStore.getCurrentAuthUserID
 
   if (state.testPreview) {
-    await bookTestsStore.getPassedTestById(props.bookTestId, authStore.user.id) // todo L neziskavam selected_answer_ids --> nejsou v db?
-    questionsCorrect = bookTestsStore.testAnswers.length // todo L nepropisuje se spravny pocet otazek do stranky
-    console.log(bookTestsStore.testAnswers)
-    console.log(bookTestsStore.currentPassedTest.selected_answers_ids)
-    console.log("if!!!", questionsCorrect)
+    await bookTestsStore.getPassedTestById(props.bookTestId, authStore.user.id)
+  } else {
+    await bookTestsStore.getAllQuestionsByTestID(props.bookTestId)
+    await bookTestsStore.getAllAnswers()
   }
 
   const testCollection: BookCollection | undefined = collectionStore.bookCollections.find(bCollection => bCollection.title === (bookTestsStore.tests.find(test => test.id === props.bookTestId)?.book_collection_id))
@@ -308,9 +283,20 @@ onBeforeUnmount(async () => {
   margin: 55px 0 0 90px;
 
 @media screen and (max-width: 648px) {
-  margin: 30px 30px 0 20px;
-  text-align: left;
+  margin:
+
+30px
+
+30px
+
+0 20px
+
+;
+  text-align: left
+
+;
 }
+
 }
 
 div > p {
@@ -327,7 +313,9 @@ div > p {
   top: 3%;
 
 @media screen and (max-width: 648px) {
-  display: none;
+  display: none
+
+;
 }
 
 }
@@ -336,7 +324,11 @@ div > p {
   margin-left: 82px;
 
 @media screen and (max-width: 648px) {
-  margin-left: 48px;
+  margin-left:
+
+48px
+
+;
 }
 
 }

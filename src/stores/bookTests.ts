@@ -27,7 +27,7 @@ export const useBookTestsStore = defineStore("bookTst", () => {
         test_id: "",
         user_id: "",
         created_at: Timestamp.now(),
-        selected_answers_ids: ["AIhGq9qinsEYvbuwEUmx"] // todo Lucka delete to []
+        selected_answers_ids: []
     })
     const passedTests = reactive<Array<BookTestPassed>>([])
 
