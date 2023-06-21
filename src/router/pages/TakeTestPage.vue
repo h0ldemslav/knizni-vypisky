@@ -102,7 +102,7 @@
                         <p class="mt-0">{{ questionsAnswered }}/{{ questionsTotal }}</p>
                     </v-col>
                     <v-col cols="2">
-                        <p class="mt-0">{{ isNaN(percentageOfQuestionsAnswered) === true ? 0 : percentageOfQuestionsAnswered }}%</p>
+                        <p class="mt-0">{{ isNaN(percentageOfQuestionsAnswered) === true ? 0 : percentageOfQuestionsAnswered }}&nbsp;%</p>
                     </v-col>
                 </v-row>
                 <v-row v-if="state.answersSend">
@@ -113,7 +113,7 @@
                         <p class="mt-0">{{ questionsCorrect }}/{{ questionsTotal }}</p>
                     </v-col>
                     <v-col cols="2">
-                        <p class="mt-0">{{ Math.round(questionsCorrect/bookTestsStore.testQuestions.length*100) }} %</p>
+                        <p class="mt-0">{{ Math.round(questionsCorrect/bookTestsStore.testQuestions.length*100) }}&nbsp;%</p>
                     </v-col>
                 </v-row>
                 <h2 class="mt-5">Kniha</h2>
@@ -144,7 +144,7 @@ const authStore = useAuthStore()
 const booksStore = useBooksStore()
 const collectionStore = useBookCollectionsStore()
 
-const props = defineProps<{bookTestId: string}>()
+const props = defineProps<{bookTestId: string, testPreview: boolean}>() // todo added testPreview // todo add testPreview: boolean
 
 const testName = ref<string | undefined>(bookTestsStore.tests.find(test => test.id === props.bookTestId)?.name)
 const collection = reactive({
@@ -157,8 +157,11 @@ const dialog = reactive({
 })
 
 const state = reactive({
-    answersSend: false
+  answersSend: false // todo Lucka false napevno, kontrolovat volani, predelat na props.testPreview
 })
+console.log("ans:", state.answersSend)
+console.log("ans props:", props.testPreview)
+console.log("bookid props:", props.bookTestId)
 
 let questionsCorrect = -1
 
@@ -175,11 +178,11 @@ const questionsTotal = computed(() => bookTestsStore.testQuestions.length)
 const percentageOfQuestionsAnswered = computed(() => Math.round(Object.keys (selectedAnswers.value).length /
 bookTestsStore.testQuestions.length * 100))
 
-console.log(percentageOfQuestionsAnswered.value)
+console.log("percentage:", percentageOfQuestionsAnswered.value)
 
 const getSelectedValues = () => {
-    console.log(Object.keys(selectedAnswers.value).length)
-    console.log(selectedAnswers.value)
+    console.log("s" + Object.keys(selectedAnswers.value).length)
+    console.log("value:", selectedAnswers.value)
     questionsCorrect = Object.values(selectedAnswers.value).filter(answer => answer.includes('true')).length
 }
 

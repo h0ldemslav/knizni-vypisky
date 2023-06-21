@@ -98,7 +98,8 @@ const routes: RouteRecordRaw[] = [
     {
         path: "/testy/vyber",
         name: "test-selection",
-        component: () => import("@/router/pages/TestSelectionPage.vue"),
+        // component: () => import("@/router/pages/TestSelectionPage.vue"),
+        component: () => import("@/router/pages/pok.vue"),
         meta: {
             requiresAuth: true
         }

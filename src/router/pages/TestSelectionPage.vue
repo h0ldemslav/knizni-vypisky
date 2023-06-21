@@ -2,6 +2,12 @@
     <Header>
     </Header>
     <main>
+        <div  v-for="test in bookTestsStore.tests">
+            <router-link :to="{name: 'take-test', params: {bookTestId: test.id, testPreview: false}}">
+<!--              // todo add , testPreview: false-->
+                {{ test.id }}
+                {{ test.name }}
+            </router-link>
         <div v-for="test in bookTestsStore.tests">
             <p class="test-id">
                 <router-link :to="{name: 'take-test', params: {bookTestId: test.id}}">
