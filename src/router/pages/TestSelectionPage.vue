@@ -81,7 +81,7 @@
           <v-window-item value="passed_tests">
 
 <!--            {{  bookCollectionsStore.bookCollections }}-->
-            {{ bookTestsStore.tests }}
+<!--            {{ bookTestsStore.tests }}-->
 
             <v-table v-if="bookTestsStore.passedTests.length !== 0">
               <thead>
