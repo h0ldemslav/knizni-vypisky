@@ -9,7 +9,6 @@ import {
     where,
     collection,
     doc,
-    addDoc,
     writeBatch,
     deleteDoc,
     updateDoc,
@@ -299,14 +298,6 @@ export const useBookTestsStore = defineStore("bookTst", () => {
 
             // answers of passed test
             await getAllAnswers()
-            const passedTestAnswers = testAnswers.filter((answer) => {
-                return snapshot.data().selected_answers_ids.includes(answer.id)
-            })
-
-            console.log(snapshot.data().selected_answers_ids)
-
-            testAnswers.length = 0
-            testAnswers.push(...passedTestAnswers)
 
             // test of passed test
             await getTestById(snapshot.data().test_id, user_id)
