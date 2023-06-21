@@ -13,6 +13,7 @@ export interface BookCollection {
     title: string,
     books: Array<string>,
     user_id: string | undefined
+    is_clicked?: boolean
 }
 
 // Notes

@@ -1,7 +1,8 @@
 <template>
     <Header>
-        {{ props.id }}
-        {{ props.count }}
+        <h1 class="ml-16 pt-8">Comming soon...</h1>
+        <!-- {{ props.id }}
+        {{ props.count }} -->
     </Header>
     <main>
         
