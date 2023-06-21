@@ -255,8 +255,8 @@ onMounted(async () => {
   if (state.testPreview) {
     await bookTestsStore.getPassedTestById(props.bookTestId, authStore.user.id)
     questionsCorrect.value = bookTestsStore.testAnswers.filter(ans => ans.is_correct == true && bookTestsStore.currentPassedTest.selected_answers_ids.includes(ans.id)).length
-    console.log("ques", questionsCorrect.value)
-    console.log("ques", bookTestsStore.testAnswers)
+    // console.log("ques", questionsCorrect.value)
+    // console.log("ques", bookTestsStore.testAnswers)
   } else {
     await bookTestsStore.getAllQuestionsByTestID(props.bookTestId)
     await bookTestsStore.getAllAnswers()

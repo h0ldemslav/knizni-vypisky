@@ -83,6 +83,7 @@
 <!--            {{  bookCollectionsStore.bookCollections }}-->
 <!--            {{ bookTestsStore.tests }}-->
 
+<!--            {{ // bookTestsStore.testAnswers }}-->
             <v-table v-if="bookTestsStore.passedTests.length !== 0">
               <thead>
               <tr>
@@ -108,17 +109,19 @@
                   v-for="test in bookTestsStore.passedTests"
                   :key="test.id"
               >
+<!--                {{ test }}-->
+
                 <td>
-                  {{ bookTestsStore.tests.filter(t => t.id === test.test_id)[0].name }}
+                  {{ bookTestsStore.tests.filter(t => t.id === test.test_id) != null ? bookTestsStore.tests.filter(t => t.id === test.test_id)[0].name : ''}}
                 </td>
                 <td>
-                  {{bookTestsStore.tests.filter(t => t.id === test.test_id)[0].book_collection_id }}
+                  {{ bookTestsStore.tests.filter(t => t.id === test.test_id) != null ? bookTestsStore.tests.filter(t => t.id === test.test_id)[0].book_collection_id : '' }}
                 </td>
                 <td>
                   {{ new Date(test.created_at.seconds*1000).getDate() }}.
                   {{ new Date(test.created_at.seconds*1000).getMonth() }}.
                   {{ new Date(test.created_at.seconds*1000).getFullYear() }}<br>
-                  {{ new Date(test.created_at.seconds*1000).getHours() }}:{{ new Date(test.created_at.seconds*1000).getMinutes() }}
+                  {{ new Date(test.created_at.seconds*1000).getHours() }}:{{ new Date(test.created_at.seconds*1000).getMinutes() < 9 ? '0'+new Date(test.created_at.seconds*1000).getMinutes() : new Date(test.created_at.seconds*1000).getMinutes()}}
                 </td>
                 <td>
                   uspesnost
@@ -145,7 +148,7 @@
 
 </template>
 
-<script lang="ts" setup> // lang="ts" setup>
+<script lang="ts" setup>
 import {useBookTestsStore} from "@/stores/bookTests.js";
 import {useAuthStore} from "@/stores/auth.js";
 import {onMounted, reactive, ref} from "vue";
@@ -166,6 +169,7 @@ const authStore = useAuthStore()
 
 onMounted(async () => {
   await bookTestsStore.getAllTests(authStore.user.id)
+  await bookTestsStore.getAllAnswers()
   await bookTestsStore.getGeneratedTests(authStore.user.id)
   await bookTestsStore.getAllPassedTests(authStore.user.id)
   await bookCollectionsStore.getBookCollections
