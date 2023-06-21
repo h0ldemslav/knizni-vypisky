@@ -1,7 +1,7 @@
-import { BookTest, BookTestQuestion, BookTestAnswer } from '@/types'
-import { defineStore } from 'pinia'
-import { reactive } from 'vue'
-import { db } from '@/main'
+import {BookTest, BookTestQuestion, BookTestAnswer} from '@/types'
+import {defineStore} from 'pinia'
+import {reactive} from 'vue'
+import {db} from '@/main'
 import {
     getDocs,
     query,
@@ -17,16 +17,17 @@ import {
 export const useBookTestsStore = defineStore("bookTst", () => {
 
     const tests = reactive<Array<BookTest>>([])
+    const generatedTests = reactive<Array<BookTest>>([])
     const testQuestions = reactive<Array<BookTestQuestion>>([])
     const testAnswers = reactive<Array<BookTestAnswer>>([])
 
     const createNewTest = async (test: BookTest, newTestRef: any) => {
         // Batch allows to execute multiple operations together
         // https://firebase.google.com/docs/firestore/manage-data/transactions#batched-writes
-        const { id, name, is_generated, user_id, book_collection_id } = test
+        const {id, name, is_generated, user_id, book_collection_id} = test
 
         const batch = writeBatch(db)
-        batch.set(newTestRef, {name, is_generated, user_id, book_collection_id })
+        batch.set(newTestRef, {name, is_generated, user_id, book_collection_id})
 
         tests.push({
             id: newTestRef.id,
@@ -41,16 +42,16 @@ export const useBookTestsStore = defineStore("bookTst", () => {
 
     const addQuestionsToTest = async (questions: Array<BookTestQuestion>, questionRef: Array<any>) => {
         const batch = writeBatch(db)
-        let index=-1
-        
+        let index = -1
+
         questions.map((question) => {
             // const newRef = doc(collection(db, "test_questions"))
             index++
-            const {text, book_id, test_id, selected_answer_id } = question
-            
-            batch.set(questionRef[index], {text, book_id, test_id, selected_answer_id })
+            const {text, book_id, test_id, selected_answer_id} = question
 
-            return { 
+            batch.set(questionRef[index], {text, book_id, test_id, selected_answer_id})
+
+            return {
                 id: questionRef[index].id,
                 text: text,
                 book_id: book_id,
@@ -67,9 +68,9 @@ export const useBookTestsStore = defineStore("bookTst", () => {
 
         testAnswers.push(...answers.map((answer) => {
             const newRef = doc(collection(db, "test_answers"))
-            const { text, is_correct, question_id } = answer
+            const {text, is_correct, question_id} = answer
 
-            batch.set(newRef, { text, is_correct, question_id })
+            batch.set(newRef, {text, is_correct, question_id})
 
             return {
                 id: newRef.id,
@@ -84,27 +85,27 @@ export const useBookTestsStore = defineStore("bookTst", () => {
 
     const updateTestName = async (test_id: string, name: string | undefined) => {
         const testRef = doc(db, "book_tests", test_id)
-        await updateDoc(testRef, { name: name })
+        await updateDoc(testRef, {name: name})
     }
 
     const updateTestCollectionId = async (test_id: string, book_collection_id: string | undefined) => {
         const testRef = doc(db, "book_tests", test_id)
-        await updateDoc(testRef, { book_collection_id: book_collection_id })
+        await updateDoc(testRef, {book_collection_id: book_collection_id})
     }
 
     const updateQuestionsAndAnswers = async () => {
         const batch = writeBatch(db)
 
         testQuestions.forEach((question) => {
-            const { text, book_id, test_id, selected_answer_id } = question
+            const {text, book_id, test_id, selected_answer_id} = question
             const questionRef = doc(db, "test_questions", question.id)
-            batch.update(questionRef, { text, book_id, test_id, selected_answer_id })
+            batch.update(questionRef, {text, book_id, test_id, selected_answer_id})
         })
 
         testAnswers.forEach((answer) => {
-            const { text, is_correct, question_id } = answer
+            const {text, is_correct, question_id} = answer
             const answerRef = doc(db, "test_answers", answer.id)
-            batch.update(answerRef, { text, is_correct, question_id })
+            batch.update(answerRef, {text, is_correct, question_id})
         })
 
         await batch.commit()
@@ -174,6 +175,48 @@ export const useBookTestsStore = defineStore("bookTst", () => {
         })
     }
 
+    const getGeneratedTests = async (user_id: string | undefined) => {
+        const q = query(collection(db, "book_tests"),
+            where("user_id", "==", user_id),
+            where("is_generated", "==", true))
+        const snapshot = await getDocs(q)
+
+        generatedTests.length = 0
+
+        snapshot.docs.forEach((doc) => {
+            generatedTests.push(
+                {
+                    id: doc.id,
+                    name: doc.data().name,
+                    is_generated: doc.data().is_generated,
+                    user_id: doc.data().user_id,
+                    book_collection_id: doc.data().book_collection_id
+                }
+            )
+        })
+    }
+
+    const getCompletedTests = async (user_id: string | undefined) => {
+        const q = query(collection(db, "book_tests"),
+            where("user_id", "==", user_id),
+            where("is_generated", "==", true))
+        const snapshot = await getDocs(q)
+
+        generatedTests.length = 0
+
+        snapshot.docs.forEach((doc) => {
+            generatedTests.push(
+                {
+                    id: doc.id,
+                    name: doc.data().name,
+                    is_generated: doc.data().is_generated,
+                    user_id: doc.data().user_id,
+                    book_collection_id: doc.data().book_collection_id
+                }
+            )
+        })
+    }
+
     const getAllQuestionsByTestID = async (id: string) => {
         const q = query(collection(db, "test_questions"), where("test_id", "==", id))
         const snapshot = await getDocs(q)
@@ -182,8 +225,8 @@ export const useBookTestsStore = defineStore("bookTst", () => {
 
         snapshot.docs.forEach((doc) => {
             testQuestions.push(
-                { 
-                    id: doc.id, 
+                {
+                    id: doc.id,
                     text: doc.data().text,
                     test_id: doc.data().test_id,
                     book_id: doc.data().book_id,
@@ -203,8 +246,10 @@ export const useBookTestsStore = defineStore("bookTst", () => {
         const ids: Array<string> = testQuestions.map((question) => {
             return question.id
         })
-        
-        if(ids.length === 0) return
+
+        console.log("ids", ids)
+
+        if (ids.length === 0) return
         const q = query(collection(db, "test_answers"), where("question_id", "in", ids))
         const snapshot = await getDocs(q)
 
@@ -212,8 +257,8 @@ export const useBookTestsStore = defineStore("bookTst", () => {
 
         snapshot.docs.forEach((doc) => {
             testAnswers.push(
-                { 
-                    id: doc.id, 
+                {
+                    id: doc.id,
                     text: doc.data().text,
                     is_correct: doc.data().is_correct,
                     question_id: doc.data().question_id
@@ -227,10 +272,12 @@ export const useBookTestsStore = defineStore("bookTst", () => {
         tests,
         testQuestions,
         testAnswers,
+        generatedTests,
 
         getAllTests,
         getAllQuestionsByTestID,
         getAllAnswers,
+        getGeneratedTests,
 
         createNewTest,
         addQuestionsToTest,
