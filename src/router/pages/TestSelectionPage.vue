@@ -132,7 +132,7 @@
               </tbody>
             </v-table>
             <div v-else>
-              Žádné vytvořené testy
+              Žádné absolvované testy
             </div>
 
           </v-window-item>

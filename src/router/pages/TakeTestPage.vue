@@ -184,9 +184,9 @@ const state = reactive({
 })
 // console.log("ans:", state.answersSend)
 // console.log("ans props:", props.testPreview)
-console.log("bookid props:", props.bookTestId)
+// console.log("bookid props:", props.bookTestId)
 
-let questionsCorrect = -1
+let questionsCorrect = ref<number>(-1)
 
 const hoveredBook = ref<BookInterface | null>(null)
 
@@ -220,7 +220,8 @@ const getSelectedValues = async () => {
   // console.log("value concat:", value)
   // console.log("selectedToSave:", selectedAnswersToSave)
 
-  questionsCorrect = Object.values(selectedAnswers.value).filter(answer => answer.includes('true')).length
+  questionsCorrect.value = Object.values(selectedAnswers.value).filter(answer => answer.includes('true')).length
+
 
   const newPassedBookTest: BookTestPassed = {
     id: '',
@@ -253,6 +254,9 @@ onMounted(async () => {
 
   if (state.testPreview) {
     await bookTestsStore.getPassedTestById(props.bookTestId, authStore.user.id)
+    questionsCorrect.value = bookTestsStore.testAnswers.filter(ans => ans.is_correct == true && bookTestsStore.currentPassedTest.selected_answers_ids.includes(ans.id)).length
+    console.log("ques", questionsCorrect.value)
+    console.log("ques", bookTestsStore.testAnswers)
   } else {
     await bookTestsStore.getAllQuestionsByTestID(props.bookTestId)
     await bookTestsStore.getAllAnswers()
