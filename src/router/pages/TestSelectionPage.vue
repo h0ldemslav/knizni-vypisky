@@ -115,7 +115,7 @@
                   {{bookTestsStore.tests.filter(t => t.id === test.test_id)[0].book_collection_id }}
                 </td>
                 <td>
-                  {{ test.created_at.seconds }}
+                  {{ Date(test.created_at.seconds*100) }}
                 </td>
                 <td>
                   uspesnost
