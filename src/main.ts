@@ -1,0 +1,38 @@
+import { createApp } from 'vue'
+import App from './App.vue'
+import vuetify from './plugins/vuetify'
+import 'vuetify/dist/vuetify.min.css'
+import '@mdi/font/css/materialdesignicons.css'
+import '@/assets/style.css'
+import router from '@/router'
+import { createPinia } from 'pinia'
+import { useAuthStore } from './stores/auth'
+
+import { initializeApp } from '@firebase/app'
+import { getAuth } from '@firebase/auth'
+import { getFirestore, collection } from '@firebase/firestore'
+
+const firebaseConfig = {
+    apiKey: "AIzaSyCIpG_b3b7oKfZr7P5BfWuifqkSgIJ50oE",
+    authDomain: "kniznivypisky.firebaseapp.com",
+    projectId: "kniznivypisky",
+    storageBucket: "kniznivypisky.appspot.com",
+    messagingSenderId: "22864152713",
+    appId: "1:22864152713:web:614805b9c2d9512f8d5e58"
+}
+
+initializeApp(firebaseConfig)
+export const auth = getAuth()
+export const db = getFirestore()
+export const bookCollectionsRef = collection(db, "book_collections") // reference to the database 'table'
+export const bookNotesRef = collection(db, "book_notes")
+
+const app = createApp(App)
+
+app.use(createPinia())
+const authStore = useAuthStore()
+await authStore.getCurrentAuthUserID
+
+app.use(vuetify)
+app.use(router)
+app.mount('#app')
