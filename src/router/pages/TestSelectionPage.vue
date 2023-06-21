@@ -80,7 +80,8 @@
           <!--          ----------------------------------------------------------------------------------------------->
           <v-window-item value="passed_tests">
 
-<!--            {{ bookCollectionsStore.bookCollections }}-->
+<!--            {{  bookCollectionsStore.bookCollections }}-->
+            {{ bookTestsStore.tests }}
 
             <v-table v-if="bookTestsStore.passedTests.length !== 0">
               <thead>
@@ -108,10 +109,10 @@
                   :key="test.id"
               >
                 <td>
-                  {{ test.id }}
+                  {{ bookTestsStore.tests.filter(t => t.id === test.test_id)[0].name }}
                 </td>
                 <td>
-                  {{ test.book_collection_id }}
+                  {{bookTestsStore.tests.filter(t => t.id === test.test_id)[0].book_collection_id }}
                 </td>
                 <td>
                   {{ test.created_at.seconds }}
