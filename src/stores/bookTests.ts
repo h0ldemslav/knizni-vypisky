@@ -335,11 +335,19 @@ export const useBookTestsStore = defineStore("bookTst", () => {
         }
     }
 
-    const deletePassedTest = async (id: string) => {
+    const deleteAllPassedTestsByBookTestID = async (book_test_id: string) => {
         const batch = writeBatch(db)
 
-        const testRef = doc(db, "test_passed", id)
-        batch.delete(testRef)
+        const filteredPassedTests = passedTests.filter((test) => test.test_id === book_test_id)
+
+        filteredPassedTests.forEach((test) => {
+            const testRef = doc(collection(db, "test_passed"), test.id)
+            batch.delete(testRef)
+        })
+
+        const updatedPassedTests = passedTests.filter((test) => test.test_id !== book_test_id)
+        passedTests.length = 0
+        passedTests.push(...updatedPassedTests)
 
         await batch.commit()
     }
@@ -374,6 +382,6 @@ export const useBookTestsStore = defineStore("bookTst", () => {
         createPassedTest,
         getAllPassedTests,
         getPassedTestById,
-        deletePassedTest
+        deleteAllPassedTestsByBookTestID
     }
 })

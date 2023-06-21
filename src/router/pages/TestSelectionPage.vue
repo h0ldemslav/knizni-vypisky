@@ -14,7 +14,7 @@
 
       <v-card-text>
         <v-window v-model="tab" class="ma-5 pa-1">
-          <!--          ----------------------------------------------------------------------------------------------->
+
           <v-window-item value="generated_tests">
             <v-table v-if="bookTestsStore.generatedTests.length !== 0">
               <thead>
@@ -25,7 +25,6 @@
               </thead>
               <tbody>
               <tr v-for="test in bookTestsStore.generatedTests" :key="test.id">
-                <!--              <tr v-for="test in bookTestsStore.tests.filter(t => t.is_generated === false)" :key="test.id">-->
                 <td>{{ test.name }}</td>
                 <td>{{ test.book_collection_id }}</td>
               </tr>
@@ -35,8 +34,6 @@
               Žádné vygenerované testy
             </div>
           </v-window-item>
-
-          <!--          ----------------------------------------------------------------------------------------------->
 
           <v-window-item value="created_tests">
             <v-table v-if="bookTestsStore.tests.length !== 0">
@@ -77,13 +74,8 @@
               Žádné vytvořené testy
             </div>
           </v-window-item>
-          <!--          ----------------------------------------------------------------------------------------------->
+
           <v-window-item value="passed_tests">
-
-<!--            {{  bookCollectionsStore.bookCollections }}-->
-<!--            {{ bookTestsStore.tests }}-->
-
-<!--            {{ // bookTestsStore.testAnswers }}-->
             <v-table v-if="bookTestsStore.passedTests.length !== 0">
               <thead>
               <tr>
@@ -109,8 +101,6 @@
                   v-for="test in bookTestsStore.passedTests"
                   :key="test.id"
               >
-<!--                {{ test }}-->
-
                 <td>
                   {{ bookTestsStore.tests.filter(t => t.id === test.test_id) != null ? bookTestsStore.tests.filter(t => t.id === test.test_id)[0].name : ''}}
                 </td>
@@ -151,13 +141,14 @@
 <script lang="ts" setup>
 import {useBookTestsStore} from "@/stores/bookTests.js";
 import {useAuthStore} from "@/stores/auth.js";
-import {onMounted, reactive, ref} from "vue";
+import {onMounted, ref} from "vue";
 import {useBookCollectionsStore} from "@/stores/bookCollections";
 
 const tab = ref(null)
 const deleteTest = async (testId: string) => {
   await bookTestsStore.getAllQuestionsByTestID(testId)
   await bookTestsStore.getAllAnswers()
+  await bookTestsStore.deleteAllPassedTestsByBookTestID(testId)
   await bookTestsStore.deleteTestCompletely(testId)
   await bookTestsStore.getAllTests(authStore.user.id)
 }
@@ -172,7 +163,7 @@ onMounted(async () => {
   await bookTestsStore.getAllAnswers()
   await bookTestsStore.getGeneratedTests(authStore.user.id)
   await bookTestsStore.getAllPassedTests(authStore.user.id)
-  await bookCollectionsStore.getBookCollections
+  await bookCollectionsStore.getBookCollections(authStore.user.id)
 })
 
 </script>
