@@ -218,7 +218,6 @@ import { BookTestQuestion } from "@/types/index";
 import { BookTest } from "@/types/index";
 import {Order} from "@/services/BooksApiClient";
 import { db } from "@/main"
-import {bookCollectionsRef} from '@/main'
 import { collection,doc, query, where } from '@firebase/firestore'
 import router from '@/router/index'
 
@@ -247,17 +246,23 @@ const testName = ref<string | undefined>(bookTestsStore.tests.find(test => test.
 let selectedCollectionBookIds = ref<string[]>([])
 const selectedCollectionBooks = reactive<{ title: string; id: string; }[]>([])
 
-watch(collectionNameToTest, () =>  {
-    selectedCollectionBookIds.value = bookCollectionsStore.bookCollections.find(collection => collection.title === collectionNameToTest.value)?.books ?? []
+watch(collectionNameToTest, async () =>  {
+    selectedCollectionBookIds.value = await bookCollectionsStore.bookCollections.find(collection => collection.title === collectionNameToTest.value)?.books ?? []
+    const actualCollection = await bookCollectionsStore.bookCollections.find(collection => collection.title === collectionNameToTest.value)
+    if(actualCollection) {
+        bookCollectionsStore.setCurrentBookCollection(actualCollection)
+    }
+    
     selectedCollectionBooks.splice(0, selectedCollectionBooks.length)
     bookTestsStore.testQuestions.map(q => q.book_id = '')
-    booksStore.books.forEach(book => {
-    if(selectedCollectionBookIds.value.includes(book.id)){
-        const elem = {title: book.title, id: book.id}
-        console.log(elem)
+    bookCollectionsStore.currentBookCollection.books.forEach(async bookId => {
+        const b = await booksStore.getBookById(bookId)
+        if(b){
+            const elem = {title: b?.title, id: bookId}
         selectedCollectionBooks.push(elem)
-    }
-})
+        }
+    })
+
 })
 const collectionSelected = ref(false)
 const testNameSet = ref(false)
@@ -452,7 +457,6 @@ onMounted(async () => {
     await booksStore.books.forEach(book => {
     if(selectedCollectionBookIds.value.includes(book.id)){
         const elem = {title: book.title, id: book.id}
-        console.log(elem)
         selectedCollectionBooks.push(elem)
     }
 })
