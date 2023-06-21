@@ -28,7 +28,7 @@
                 <test-card url="test-generation" :logo=ai buttonText="Generuj otázky" description= "Vygeneruj otázky ke zvolené kolekci"/>
             </v-col>
             <v-col cols="12" md="3" class="d-flex justify-sm-start justify-center">
-                <test-card id="new-test" url="test-creation" testId="new"  :logo=page buttonText="Vytvoř otázky" description= "Vytvoř si vlastní otázky"/>
+                <test-card id="new-test" url="test-creation" testId="new"  :logo=page buttonText="Vytvoř test" description= "Vytvoř si test s vlastními otázkami"/>
             </v-col>
             <v-col cols="12" md="3" class="d-flex justify-sm-start justify-center">
                 <test-card url="test-selection"  :logo=check buttonText="Vlastní testy" description= "Otestuj svoje znalosti na vlastních otázkách"/>

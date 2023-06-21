@@ -14,12 +14,12 @@
         <v-card width="250px" class="">
           <v-card-title class="d-flex justify-center">
             <v-card max-width="300x" class="ma-2 mt-1 pa-1">
-              <h3 class="text-center">{{ collection.title }}</h3>
+              <h3 class="text-center">{{ bookCollection.title }}</h3>
             </v-card>
           </v-card-title>
           <v-img
               class="mb-3"
-              :src="collection.image"
+              :src="bookCollection.image"
               lazy-src=""
               height="200px"
               :cover="false"/>
@@ -171,7 +171,7 @@ import {useBooksStore} from '@/stores/books'
 import {onMounted, onBeforeUnmount, computed, reactive, ref, defineProps} from 'vue'
 import {Book as BookInterface} from "@/types/model/Book"
 import {useBookCollectionsStore} from '@/stores/bookCollections'
-import {DEFAULT_COLLECTION_IMAGE, getCollectionImage, getCollectionLabel} from "@/utils/bookCollectionUtils";
+import { getCollectionImage} from "@/utils/bookCollectionUtils";
 import router from '@/router/index'
 import {BookCollection, BookTest, BookTestPassed} from "@/types";
 import {db} from "@/main";
