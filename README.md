@@ -20,7 +20,8 @@
 
 👤 **Daniil Astapenko**<br>
 UID: xastapen<br>
-@: <a href="mailto:xastapen@node.mendelu.cz">xastapen@node.mendelu.cz</a><br>
+@: <a href="mailto:xastapen@mendelu.cz">xastapen@mendelu.cz</a><br>
+@: <a href="mailto:astapenko.daniil.03@gmail.com">astapenko.daniil.03@gmail.com</a><br>
 
 👤 **Petr Chatrný** <br>
 UID: xchatrny<br>
@@ -28,7 +29,7 @@ UID: xchatrny<br>
 
 👤 **Martin Navrátil**<br>
 UID: xnavra18<br>
-@: <a href="mailto:xnavra18@node.mendelu.cz">xnavra18@node.mendelu.cz</a><br>
+@: <a href="mailto:xnavra18@mendelu.cz">xnavra18@mendelu.cz</a><br>
 
 👤 **Lucie Pacáková**<br>
 UID: xpacako1<br>
