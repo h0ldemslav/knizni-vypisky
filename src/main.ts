@@ -11,14 +11,15 @@ import { useAuthStore } from './stores/auth'
 import { initializeApp } from '@firebase/app'
 import { getAuth } from '@firebase/auth'
 import { getFirestore, collection } from '@firebase/firestore'
+import Config from './config'
 
 const firebaseConfig = {
-    apiKey: "AIzaSyCIpG_b3b7oKfZr7P5BfWuifqkSgIJ50oE",
-    authDomain: "kniznivypisky.firebaseapp.com",
-    projectId: "kniznivypisky",
-    storageBucket: "kniznivypisky.appspot.com",
-    messagingSenderId: "22864152713",
-    appId: "1:22864152713:web:614805b9c2d9512f8d5e58"
+    apiKey: Config.fbApiKey,
+    authDomain: Config.fbAuthDomain,
+    projectId: Config.fbProjectID,
+    storageBucket: Config.fbStorageBucket,
+    messagingSenderId: Config.fbMessagingSenderID,
+    appId: Config.fbAppID
 }
 
 initializeApp(firebaseConfig)
