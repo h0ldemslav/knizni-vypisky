@@ -152,7 +152,7 @@ import {Book as BookInterface} from "@/types/model/Book"
 import {useBookCollectionsStore} from '@/stores/bookCollections'
 import { getCollectionImage} from "@/utils/bookCollectionUtils";
 import router from '@/router/index'
-import {BookCollection, BookTest, BookTestPassed} from "@/types";
+import {BookCollection, BookTestPassed} from "@/types";
 import {db} from "@/main";
 import {collection, doc, Timestamp} from "@firebase/firestore";
 
@@ -226,7 +226,7 @@ const getSelectedValues = async () => {
   const newPassedBookTest: BookTestPassed = {
     id: '',
     test_id: props.bookTestId,
-    user_id: authStore.user.id, // xsNnzfikywcDp3DV3ypWLFpNVYo2
+    user_id: authStore.user.id as string, // xsNnzfikywcDp3DV3ypWLFpNVYo2
     selected_answers_ids: selectedAnswersToSave,
     created_at: Timestamp.now(),
   }

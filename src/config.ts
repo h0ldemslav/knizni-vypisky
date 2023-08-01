@@ -8,4 +8,6 @@ export default class Config {
     static fbStorageBucket = import.meta.env.VITE_FB_STORAGE_BUCKET;
     static fbMessagingSenderID = import.meta.env.VITE_FB_MESSAGING_SENDER_ID;
     static fbAppID = import.meta.env.VITE_FB_APP_ID;
+
+    static publicPath =  process.env.NODE_ENV === "production" ? "/~xchatrny/" : "/"
 }
