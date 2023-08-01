@@ -55,7 +55,7 @@
                   v-for="test in bookTestsStore.tests"
                   :key="test.name"
               >
-                <td><router-link :to="{name: 'take-test', params: {bookTestId: test.id, testPreview: false}}">
+                <td><router-link :to="{name: 'take-test', params: {bookTestId: test.id, testPreview: 'false'}}">
                   {{ test.name }}
                 </router-link></td>
                 <td>{{ test.book_collection_id }}</td>
@@ -107,17 +107,17 @@
                 <td>
                   {{ bookTestsStore.tests.filter(t => t.id === test.test_id) != null ? bookTestsStore.tests.filter(t => t.id === test.test_id)[0].book_collection_id : '' }}
                 </td>
-                <td>
-                  {{ new Date(test.created_at.seconds*1000).getDate() }}.
-                  {{ new Date(test.created_at.seconds*1000).getMonth() }}.
-                  {{ new Date(test.created_at.seconds*1000).getFullYear() }}<br>
-                  {{ new Date(test.created_at.seconds*1000).getHours() }}:{{ new Date(test.created_at.seconds*1000).getMinutes() < 9 ? '0'+new Date(test.created_at.seconds*1000).getMinutes() : new Date(test.created_at.seconds*1000).getMinutes()}}
+                <td v-if="test.created_at != null && test.created_at.seconds != undefined">
+                    {{ new Date(test.created_at?.seconds * 1000).getDate() }}.
+                    {{ new Date(test.created_at?.seconds * 1000).getMonth() }}.
+                    {{ new Date(test.created_at?.seconds * 1000).getFullYear() }}<br>
+                    {{ new Date(test.created_at?.seconds * 1000).getHours() }}:{{ new Date(test.created_at?.seconds * 1000).getMinutes() < 9 ? '0'+new Date(test.created_at?.seconds * 1000).getMinutes() : new Date(test.created_at?.seconds * 1000).getMinutes()}}
                 </td>
                 <td>
                   uspesnost
                 </td>
                 <td class="text-right">
-                  <router-link :to="{name: 'take-test', params: {bookTestId: test.id, testPreview: true}}">
+                  <router-link :to="{name: 'take-test', params: {bookTestId: test.id, testPreview: 'true'}}">
                     <v-btn color="primary">Náhled</v-btn>
                   </router-link>
                 </td>

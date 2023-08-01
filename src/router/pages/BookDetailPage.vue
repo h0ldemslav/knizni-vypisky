@@ -118,9 +118,9 @@
                         </div>
 
                     </div>
-                    
+
                     <div v-if="isAddingFields" class="fab-add-wrapper">
-                        <v-btn @click="addNewField" icon="mdi-plus" color="red" rounded="lg" size="40">                
+                        <v-btn @click="addNewField" icon="mdi-plus" color="red" rounded="lg" size="40">
                             <template v-slot:prepend>
                                 <v-icon color="white"></v-icon>
                             </template>
@@ -134,9 +134,9 @@
 
                         <v-btn v-if="isAddingFields" @click="cancelForm" variant="text" color="red" class="font-weight-bold">Zrušit</v-btn>
 
-                        <v-btn 
-                            v-if="isAddingFields" 
-                            prepend-icon="mdi-content-save" 
+                        <v-btn
+                            v-if="isAddingFields"
+                            prepend-icon="mdi-content-save"
                             color="green"
                             type="submit"
                             class="ml-2"
@@ -184,7 +184,7 @@
     const textAreaMaximumChars = 512
 
     const addNewField = () => fields.push({ name: "", value: ""})
-    
+
     const cancelForm = () => {
         fields.length = 0
 
@@ -210,10 +210,11 @@
 
     const cancelSelectField = () => {
         bookCollectionsModel.value.length = 0
-        bookCollectionsModel.value.push(...bookCollectionsStore.bookCollections.filter(
-                        (col) => col.books.includes(book.value.id )
-                    )
-        )
+        bookCollectionsModel.value.push(...bookCollectionsStore.bookCollections.filter((col) => {
+            if (book.value != undefined) {
+                col.books.includes(book.value.id)
+            }
+        }))
 
         isSelectInputChanged.value = false
     }
@@ -230,13 +231,13 @@
         }
 
         return authors
-    } 
+    }
 
     const getFullLanguageName = (langShort: string): string => {
-        let language = "" 
-        
+        let language: string
+
         switch (langShort) {
-            case "cs": 
+            case "cs":
                 language = BookLanguage.Czech
                 break
 
@@ -307,16 +308,16 @@
 
             if (index != -1) {
 
-                if (!col.books.includes(book.value.id)) {
+                if (book.value != undefined && !col.books.includes(book.value.id)) {
                     await bookCollectionsStore.addBook(col.id, book.value.id)
                     bookCollectionsModel.value[index] = col
                 }
-                
-            } else if (col.books.includes(book.value.id)) {
+
+            } else if (book.value != undefined && col.books.includes(book.value.id)) {
                 await bookCollectionsStore.removeBook(col.id, book.value.id)
-            } 
+            }
         }
-        
+
         isSelectInputChanged.value = false
     }
 
@@ -344,10 +345,11 @@
             if (authStore.isUserLoggedIn && authStore.user.id) {
                 await bookCollectionsStore.getBookCollections(authStore.user.id)
 
-                bookCollectionsModel.value.push(...bookCollectionsStore.bookCollections.filter(
-                        (col) => col.books.includes(book.value.id )
-                    )
-                )
+                bookCollectionsModel.value.push(...bookCollectionsStore.bookCollections.filter((col) => {
+                    if (book.value != undefined) {
+                        col.books.includes(book.value.id)
+                    }
+                }))
 
                 await bookNotesStore.getBookNote(props.id, authStore.user.id)
 
@@ -355,7 +357,7 @@
             }
 
         } else {
-            router.push({ name: "page_not_found" })
+            await router.push({ name: "page_not_found" })
         }
 
     })
