@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
-import type {BookTest} from '@/types'
 import { useAuthStore } from '@/stores/auth'
+import Config from "@/config";
 
 const routes: RouteRecordRaw[] = [
     {
@@ -106,7 +106,7 @@ const routes: RouteRecordRaw[] = [
 ]
 
 const router = createRouter({
-    history: createWebHistory(),
+    history: createWebHistory(Config.publicPath), // base path
     routes,
 })
 
