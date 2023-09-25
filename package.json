@@ -8,7 +8,7 @@
     "build": "vue-tsc && vite build",
     "preview": "vite preview",
     "test": "cypress run",
-    "akela": "vite build --base=/~xchatrny/"
+    "akela": "vite build --base=/~xastapen/"
   },
   "dependencies": {
     "@mdi/font": "5.9.55",
