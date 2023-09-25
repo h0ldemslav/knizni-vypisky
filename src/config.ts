@@ -9,5 +9,5 @@ export default class Config {
     static fbMessagingSenderID = import.meta.env.VITE_FB_MESSAGING_SENDER_ID;
     static fbAppID = import.meta.env.VITE_FB_APP_ID;
 
-    static publicPath =  process.env.NODE_ENV === "production" ? "/~xchatrny/" : "/"
+    static publicPath =  process.env.NODE_ENV === "production" ? "/~xastapen/" : "/"
 }
